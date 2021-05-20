@@ -1,3 +1,5 @@
+import os
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import curses
 from curses import textpad
 from pygame import mixer
@@ -40,6 +42,17 @@ def printart(stdscr, file, x, y, color_pair): # prints line one by one to displa
 	    for i in range(len(lines)):
 	    	stdscr.addstr(y+i-len(lines), x-int(len(max(lines, key=len))/2), lines[i], curses.color_pair(color_pair))
 
+def key_events(stdscr, tree1):
+	key = stdscr.getch()
+
+	if key == curses.KEY_UP:
+		tree1.age +=1
+
+	if key == curses.KEY_DOWN:
+		tree1.age -=1
+
+	if key == ord("q"):
+		exit()
 
 
 
@@ -75,13 +88,15 @@ class tree:
 		#RAIN
 
 	def rain(self, maxx, maxy, seconds, intensity, speed, char, color_pair):
-		random.seed(int(seconds/speed))
+		random.seed(int(seconds/speed)) # this keeps the seed same for some time, so rains looks like its going slowly
 
 		#printart(self.stdscr, 'res/rain1.txt', int(maxx/2), int(maxy*3/4), 4)
 		for i in range(intensity):
 			ry=random.randrange(int(maxy*1/4), int(maxy*3/4))
 			rx=random.randrange(int(maxx/3), int(maxx*2/3))
 			self.stdscr.addstr(ry, rx, char, curses.color_pair(color_pair))
+
+		random.seed()
 
 
 
@@ -101,6 +116,7 @@ def main():
 	curses.init_pair(3, 3, 0) #active selected inner, outer
 	curses.init_pair(4, 51, 0)  #border coloer inner,outer
 	curses.init_pair(5, 15, 0)
+	curses.init_pair(6, 1, 0)
 
 	seconds = 0
 
@@ -116,37 +132,59 @@ def main():
 
 	try:
 		while run:
-			stdscr.erase()
-			maxy,maxx = stdscr.getmaxyx()
+
+			try:
+				stdscr.erase()
+				maxy,maxx = stdscr.getmaxyx()
 
 
-			addtext(int(maxx/2), int(maxy*5/6), quote, anilen, stdscr, 2)
-			anilen+=anispeed
-			if anilen>150:
-				anilen=150
+				addtext(int(maxx/2), int(maxy*5/6), quote, anilen, stdscr, 2)
+				anilen+=anispeed
+				if anilen>150:
+					anilen=150
 
-			if seconds%30000 == 0: #show another quote every 5 min, and grow tree
-				quote = getqt()
-				tree1.age+=1
-				anilen = 1
-				tree_grow.play()
-
-
-			music_volume+=0.001#fade in music
-			if music_volume > music_volume_max:
-				music_volume = music_volume_max
-
-			tree1.display(maxx, maxy)
-
-			tree1.rain(maxx, maxy, seconds, 30, 30, "/",  4)
-
-			mixer.music.set_volume(music_volume)
+				if seconds%3000 == 0: #show another quote every 5 min, and grow tree
+					quote = getqt()
+					tree1.age+=1
+					anilen = 1
+					tree_grow.play()
 
 
+				music_volume+=0.001#fade in music
+				if music_volume > music_volume_max:
+					music_volume = music_volume_max
+
+				tree1.display(maxx, maxy)
+
+				tree1.rain(maxx, maxy, seconds, 30, 30, "/",  4)
+
+				mixer.music.set_volume(music_volume)
+
+				key_events(stdscr, tree1)
+
+				time.sleep(0.01)
+				seconds += 1
+
+			except KeyboardInterrupt:
+
+				try:
+					stdscr.erase()
+					stdscr.addstr(int(maxy*3/5), int(maxx/2-len("PRESS 'q' TO EXIT")/2), "PRESS 'q' TO EXIT", curses.A_BOLD)
+					stdscr.refresh()
+					time.sleep(1)
+				except KeyboardInterrupt:
+					pass
+
+
+				
 			stdscr.refresh()
 
-			time.sleep(0.01)
-			seconds += 1
+
+
+
+
+
+
 	finally:
 		curses.echo()
 		curses.nocbreak()
