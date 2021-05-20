@@ -1,7 +1,14 @@
 import curses
 from curses import textpad
+from pygame import mixer
 import time
 import random
+
+mixer.init()
+
+rain_music = mixer.music.load('res/rain.ogg')
+tree_grow = mixer.Sound('res/growth.waw')
+mixer.music.play(-1)
 
 def replaceNth(s, source, target, n): #code from stack overflow, replaces nth occurence of an item.
     inds = [i for i in range(len(s) - len(source)+1) if s[i:i+len(source)]==source]
@@ -13,7 +20,7 @@ def replaceNth(s, source, target, n): #code from stack overflow, replaces nth oc
 
 def addtext(x, y, text, anilen, stdscr, color_pair): #adds and animates text in the center
 
-	text= replaceNth(text[:int(anilen)], " ", "#", 7) # aads "#" after the 7th word to split line
+	text= replaceNth(text[:int(anilen)], " ", "#", 8) # aads "#" after the 7th word to split line
 	text=text.split("#")                              #splits text into 2 list
 	for i in range(len(text)):
 		stdscr.addstr(y+i,int(x-len(text[i])/2), str(text[i]), curses.color_pair(color_pair)) #displays the list in 2 lines
@@ -32,6 +39,8 @@ def printart(stdscr, file, x, y, color_pair): # prints line one by one to displa
 
 	    for i in range(len(lines)):
 	    	stdscr.addstr(y+i-len(lines), x-int(len(max(lines, key=len))/2), lines[i], curses.color_pair(color_pair))
+
+
 
 
 class tree:
@@ -98,9 +107,12 @@ def main():
 	anilen=1
 	anispeed=0.2
 
+	music_volume=0
+	music_volume_max=1
+
 	quote = getqt()
 
-	tree1 = tree(stdscr, 200)
+	tree1 = tree(stdscr, 118)
 
 	try:
 		while run:
@@ -117,10 +129,19 @@ def main():
 				quote = getqt()
 				tree1.age+=1
 				anilen = 1
+				tree_grow.play()
+
+
+			music_volume+=0.001#fade in music
+			if music_volume > music_volume_max:
+				music_volume = music_volume_max
 
 			tree1.display(maxx, maxy)
 
-			tree1.rain(maxx, maxy, seconds, 30, 30, "`",  4)
+			tree1.rain(maxx, maxy, seconds, 30, 30, "/",  4)
+
+			mixer.music.set_volume(music_volume)
+
 
 			stdscr.refresh()
 
