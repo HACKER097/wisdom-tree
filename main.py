@@ -5,6 +5,7 @@ from curses import textpad
 from pygame import mixer
 import time
 import random
+import pickle
 
 mixer.init()
 
@@ -52,6 +53,10 @@ def key_events(stdscr, tree1):
 		tree1.age -=1
 
 	if key == ord("q"):
+		treedata = open('res/treedata', 'wb')
+		pickle.dump(tree1.age, treedata, protocol=None )
+		treedata.close()
+		
 		exit()
 
 
@@ -128,7 +133,10 @@ def main():
 
 	quote = getqt()
 
-	tree1 = tree(stdscr, 118)
+	tree1 = tree(stdscr, 1)
+	tree1.age -=1
+	treedata_in = open('res/treedata', 'rb')
+	tree1.age = pickle.load(treedata_in)
 
 	try:
 		while run:
@@ -178,10 +186,6 @@ def main():
 
 				
 			stdscr.refresh()
-
-
-
-
 
 
 
