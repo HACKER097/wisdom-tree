@@ -6,6 +6,7 @@ from pygame import mixer
 import time
 import random
 import pickle
+import glob
 
 mixer.init()
 
@@ -72,7 +73,10 @@ def key_events(stdscr, tree1):
 		mixer.music.play(-1)
 		tree1.show_music = True
 
-		
+	if key == ord(" "):
+		mixer.music.pause()
+		tree1.pause = True
+
 
 
 
@@ -81,9 +85,10 @@ class tree:
 		self.stdscr =stdscr
 		self.age = age
 		self.show_music = False
-		self.music_list = ['res/rain.ogg','res/forest.ogg', 'res/forest2.ogg']
+		self.music_list = glob.glob("res/*.ogg")
 		self.music_list_num = 0
 		self.music = mixer.music.load(self.music_list[self.music_list_num])
+		self.pause = False
 
 
 	def display(self, maxx, maxy):
@@ -164,6 +169,7 @@ def main():
 
 
 
+
 	try:
 		while run:
 
@@ -203,6 +209,17 @@ def main():
 				mixer.music.set_volume(music_volume)
 
 				key_events(stdscr, tree1)
+
+				while tree1.pause:
+					stdscr.erase()
+					stdscr.addstr(int(maxy*3/5), int(maxx/2-len("PAUSED")/2), "PAUSED", curses.A_BOLD)
+					key = stdscr.getch()
+					if key == ord(" "):
+						tree1.pause = False
+						mixer.music.unpause()
+						stdscr.refresh()
+					if key == ord("q"):
+						exit()
 
 
 				time.sleep(0.01)
