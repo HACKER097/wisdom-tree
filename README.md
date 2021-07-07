@@ -4,11 +4,11 @@ Wisdom Tree is a tui concentration app I am working on. Inspired by the wisdom t
 
 # Features
 
-Wisdom tree plays a variety of music, enviournmental sounds and white noises to help you concentrate. You can import also import your own music into windom tree.
+Wisdom tree plays a variety of music, environmental sounds and white noises to help you concentrate. You can import also your own music into Wisdom Tree.
 
 3000+ quotes and lines of wisdom. You are assured that you will never see the same quote again
 
-Minimal interface and navigation to increase concentraion.
+Minimal interface and navigation to increase concentration.
 
 # Upcomming Features
 
