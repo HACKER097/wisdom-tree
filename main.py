@@ -7,6 +7,8 @@ import time
 import random
 import pickle
 import glob
+import threading
+from datetime import date
 
 mixer.init()
 
@@ -45,10 +47,18 @@ def key_events(stdscr, tree1):
 	key = stdscr.getch()
 
 	if key == curses.KEY_UP:
-		tree1.age +=1
+		tree1.showtimer = True
+		tree1.selectedtimer -= 1
 
 	if key == curses.KEY_DOWN:
-		tree1.age -=1
+		tree1.showtimer = True
+		tree1.selectedtimer += 1
+
+	if key == curses.KEY_ENTER or key == 10 or key == 13: # this is enter key
+		if tree1.showtimer:
+			tree1.starttimer(tree1.selectedtimer)
+			tree1.timerstart.play()
+
 
 	if key == ord("q"):
 		treedata = open('res/treedata', 'wb')
@@ -89,9 +99,17 @@ class tree:
 		self.music_list_num = 0
 		self.music = mixer.music.load(self.music_list[self.music_list_num])
 		self.pause = False
+		self.showtimer = False
+		self.timerlist = ["Pomodro 20+20" ,"Pomodro 20+10", "Pomodro 40+20", "Pomodro 50+10"]
+		self.selectedtimer = 0
+		self.timerstart = mixer.Sound('res/timerstart.wav')
+		self.alarm = mixer.Sound('res/alarm.wav')
+		self.timerrun = False
+		random.seed(str(date.today()))
+		self.season = random.choice(["rain", "heavy_rain", "light_rain", "snow", "windy"])
+		random.seed()
 
-
-	def display(self, maxx, maxy):
+	def display(self, maxx, maxy, seconds):
 		if self.age >= 1 and self.age < 5:
 			self.artfile = 'res/p1.txt'
 		if self.age >= 5 and self.age < 10:
@@ -114,6 +132,8 @@ class tree:
 		printart(self.stdscr, self.artfile, int(maxx/2), int(maxy*3/4), 1)
 		addtext(int(maxx/2), int(maxy*3/4),"age: " +str(int(self.age))+ " " , -1, self.stdscr, 3)
 
+		if self.timerrun:
+			pass
 		#RAIN
 
 	def rain(self, maxx, maxy, seconds, intensity, speed, char, color_pair):
@@ -127,7 +147,44 @@ class tree:
 
 		random.seed()
 
+	def seasons(self, maxx, maxy, seconds):
+		if self.season == "rain":
+			self.rain(maxx, maxy, seconds, 30, 30, "/",  4)
 
+		if self.season == "light_rain":
+			self.rain(maxx, maxy, seconds, 30, 60, "`",  4)
+
+
+		if self.season == "heavy_rain":
+			self.rain(maxx, maxy, seconds, 40, 20, "/",  4)
+
+
+		if self.season == "snow":
+			self.rain(maxx, maxy, seconds, 30, 30, ".",  5)
+
+		if self.season == "windy":
+			self.rain(maxx, maxy, seconds, 20, 30, "-",  4)
+
+
+	def timer(self, stdscr, maxy, maxx):
+		if self.selectedtimer > len(self.timerlist) - 1:
+			self.selectedtimer = len(self.timerlist) - 1
+		if self.selectedtimer < 0:
+			self.selectedtimer = 0
+
+		for i in range(len(self.timerlist)):
+			if i == self.selectedtimer:
+				stdscr.addstr(int((maxy-len(self.timerlist))/2)+i*2, int(maxx/10-len(self.timerlist[i])/2), self.timerlist[i], curses.A_BOLD)
+			else:
+				stdscr.addstr(int((maxy-len(self.timerlist))/2)+i*2, int(maxx/10-len(self.timerlist[i])/2), self.timerlist[i])
+
+
+	def starttimer(self, input):
+		self.timerrun = True
+		self.worktime = 120000
+		self.breaktime = 120000
+
+		
 
 
 def main():
@@ -146,6 +203,7 @@ def main():
 	curses.init_pair(4, 51, 0)  #border coloer inner,outer
 	curses.init_pair(5, 15, 0)
 	curses.init_pair(6, 1, 0)
+	curses.init_pair(7, curses.COLOR_YELLOW, 0)
 
 
 	tree_grow = mixer.Sound('res/growth.waw')
@@ -165,8 +223,6 @@ def main():
 
 	treedata_in = open('res/treedata', 'rb')
 	tree1.age = pickle.load(treedata_in)
-
-
 
 
 
@@ -190,21 +246,26 @@ def main():
 					tree_grow.play()
 
 
-				if seconds%200 == 0: #show another quote every 5 min, and grow tree
+				if seconds%500 == 0: 
+					tree1.showtimer = False
+
+				if seconds%200 == 0: 
 					tree1.show_music = False
 
 				if tree1.show_music:
 					showtext = "Playing: " + tree1.music_list[tree1.music_list_num].split("/")[1]
 					stdscr.addstr(int(maxy/10), int(maxx/2-len(showtext)/2), showtext, curses.A_BOLD)
 
+				if tree1.showtimer:
+					tree1.timer(stdscr, maxy, maxx)
 
 				music_volume+=0.001#fade in music
 				if music_volume > music_volume_max:
 					music_volume = music_volume_max
 
-				tree1.display(maxx, maxy)
+				tree1.display(maxx, maxy, seconds)
 
-				tree1.rain(maxx, maxy, seconds, 30, 30, "/",  4)
+				tree1.seasons(maxx, maxy, seconds)
 
 				mixer.music.set_volume(music_volume)
 
