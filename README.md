@@ -1,4 +1,4 @@
-# wisdom-tree
+# Wisdom Tree
 
 Wisdom Tree is a tui concentration app I am working on. Inspired by the wisdom tree in Plants vs. Zombies which gives in-game tips when it grows, Wisdom Tree gives you real life tips when it grows. How can you grow the tree? by concentrating!
 
