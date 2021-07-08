@@ -14,10 +14,6 @@ or
 
 `python3 main.py`
 
-Add this to your `.bashrc` to run from anywhere:
-
-`alias wisdom-tree='cd $(pwd); python3 main.py; cd ~'`
-
 # Usage
 
 Use `left` and `right` arrow keys to change music
