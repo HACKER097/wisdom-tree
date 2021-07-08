@@ -7,8 +7,6 @@ import time
 import random
 import pickle
 import glob
-import threading
-from datetime import date
 
 mixer.init()
 
@@ -60,6 +58,10 @@ def key_events(stdscr, tree1):
 			tree1.starttimer(tree1.selectedtimer)
 			tree1.timerstart.play()
 
+		if tree1.breakover:
+			tree1.breakover = False
+			tree1.starttimer(tree1.selectedtimer)
+			tree1.timerstart.play()
 
 	if key == ord("q"):
 		treedata = open('res/treedata', 'wb')
@@ -89,6 +91,7 @@ def key_events(stdscr, tree1):
 	if key == ord(" "):
 		mixer.music.pause()
 		tree1.pause = True
+		tree1.pausetime = time.time()
 
 
 
@@ -103,14 +106,16 @@ class tree:
 		self.music = mixer.music.load(self.music_list[self.music_list_num])
 		self.pause = False
 		self.showtimer = False
-		self.timerlist = ["Pomodro 20+20" ,"Pomodro 20+10", "Pomodro 40+20", "Pomodro 50+10"]
+		self.timerlist = ["Pomodro 20+20" ,"Pomodro 20+10", "Pomodro 40+20", "Pomodro 50+10", "END TIMER NOW"]
 		self.selectedtimer = 0
 		self.timerstart = mixer.Sound('res/timerstart.wav')
 		self.alarm = mixer.Sound('res/alarm.wav')
 		self.istimer = False
+		self.isbrake = False
+		self.breakover = False
 		self.timerhidetime = 0
 		self.musichidetime = 0
-		random.seed(str(date.today()))
+		random.seed(int(time.time()/(60*60*24)))
 		self.season = random.choice(["rain", "heavy_rain", "light_rain", "snow", "windy"])
 		random.seed()
 
@@ -186,25 +191,69 @@ class tree:
 		if int(time.time()) == self.timerhidetime:
 			self.showtimer=False
 
+		if self.istimer:
+			self.secondsleft = int(self.workendtime)-int(time.time())
+			timertext = "Break in: " + str(int(self.secondsleft/60)).zfill(2) + ":" + str(self.secondsleft%60).zfill(2)
+			stdscr.addstr(int(maxy*10/11), int(maxx/2-len(timertext)/2), timertext, curses.color_pair(5))
+
+			
+		if self.breakover:
+			self.stdscr.addstr(int(maxy*10/11), int(maxx/2-len("BREAK IS OVER, PRESS ENTER TO START NEW TIMER")/2), "BREAK IS OVER, PRESS ENTER TO START NEW TIMER", curses.A_BLINK)
+
+
+	def breakstart(self):
+		if self.istimer:
+			self.timerstart.play()
+			mixer.music.pause()
+			self.breakendtime = int(time.time())+self.breaktime
+			self.istimer = False
+			self.isbrake = True
+
+	def breakdisplay(self, maxx, maxy):
+			self.secondsleft = int(self.breakendtime)-int(time.time())
+			timertext = "Break ends in: " + str(int(self.secondsleft/60)).zfill(2) + ":" + str(self.secondsleft%60).zfill(2)
+			self.stdscr.addstr(int(maxy*10/11), int(maxx/2-len(timertext)/2), timertext, curses.color_pair(5))
+
+			if self.secondsleft == 0:
+				mixer.music.unpause()
+				self.isbrake = False
+				self.breakover = True
+				self.alarm.play()
+
+
 	def timer(self):
-		if self.istimer and int(time.time())==self.workendtime:
-			exit()
+		if self.istimer and int(time.time())==int(self.workendtime):
+			self.breakstart()
 
 
+	def starttimer(self, inputtime):
 
-	def starttimer(self, input):
-		self.istimer = True
-		self.worktime = 5
-		self.breaktime = 10
+		if inputtime == 0:
+			self.istimer = True
+			self.worktime = 20*60
+			self.breaktime = 20*60
+
+		if inputtime == 1:
+			self.istimer = True
+			self.worktime = 20*60
+			self.breaktime = 10*60
+
+		if inputtime == 2:
+			self.istimer = True
+			self.worktime = 40*60
+			self.breaktime = 20*60
+
+		if inputtime == 3:
+			self.istimer = True
+			self.worktime = 50*60
+			self.breaktime = 10*60
+
+		if inputtime == 4:
+			self.worktime = 0
+			self.breaktime = 0
+			self.istimer == False
 
 		self.workendtime = int(time.time())+self.worktime
-
-
-
-
-
-
-
 
 
 		
@@ -246,7 +295,7 @@ def main():
 
 	treedata_in = open('res/treedata', 'rb')
 	tree1.age = pickle.load(treedata_in)
-
+	tree1.age = 1
 
 
 	try:
@@ -299,8 +348,27 @@ def main():
 						tree1.pause = False
 						mixer.music.unpause()
 						stdscr.refresh()
+						if tree1.istimer:
+							tree1.workendtime += time.time()-tree1.pausetime 
+							
 					if key == ord("q"):
 						exit()
+
+				while tree1.isbrake:
+					stdscr.erase()
+					stdscr.addstr(int(maxy*3/5), int(maxx/2-len("PRESS SPACE TO END BREAK")/2), "PRESS SPACE TO END BREAK", curses.A_BOLD)
+					tree1.breakdisplay(maxx, maxy)
+					stdscr.refresh()
+					key = stdscr.getch()
+
+					if key == ord(" "):
+						tree1.isbrake = False
+						mixer.music.unpause()
+						stdscr.refresh()
+					
+					if key == ord("q"):
+						exit()
+
 
 
 				time.sleep(0.01)
