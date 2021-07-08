@@ -310,7 +310,7 @@ def main():
 				if anilen>150:
 					anilen=150
 
-				if int(time.time())%(30*60) == 0: #show another quote every 5 min, and grow tree
+				if seconds%(100*60*10) == 0: #show another quote every 5 min, and grow tree
 					quote = getqt()
 					tree1.age+=1
 					anilen = 1
