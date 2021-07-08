@@ -2,6 +2,23 @@
 
 Wisdom Tree is a tui concentration app I am working on. Inspired by the wisdom tree in Plants vs. Zombies which gives in-game tips when it grows, Wisdom Tree gives you real life tips when it grows. How can you grow the tree? by concentrating!
 
+# Installation and usage
+
+`git clone https://github.com/HACKER097/wisdom-tree`
+
+`cd wisdom-tree`
+
+`pip install -r requirements.txt`
+or
+`pip3 install -r requirements.txt`
+
+`python3 main.py`
+
+Add this to your `.bashrc` to run from anywhere:
+
+`alias wisdom-tree='cd $(pwd); python3 main.py; cd ~'`
+
+
 # Screenshots
 ![alt text](https://imgur.com/nFw46EN.png)
 ![alt text](https://imgur.com/Q1rGccM.png)
