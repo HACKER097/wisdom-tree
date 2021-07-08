@@ -194,7 +194,7 @@ class tree:
 		if self.istimer:
 			self.secondsleft = int(self.workendtime)-int(time.time())
 			timertext = "Break in: " + str(int(self.secondsleft/60)).zfill(2) + ":" + str(self.secondsleft%60).zfill(2)
-			stdscr.addstr(int(maxy*10/11), int(maxx/2-len(timertext)/2), timertext, curses.color_pair(5))
+			stdscr.addstr(int(maxy*10/11), int(maxx/2-len(timertext)/2), timertext)
 
 			
 		if self.breakover:
@@ -212,7 +212,7 @@ class tree:
 	def breakdisplay(self, maxx, maxy):
 			self.secondsleft = int(self.breakendtime)-int(time.time())
 			timertext = "Break ends in: " + str(int(self.secondsleft/60)).zfill(2) + ":" + str(self.secondsleft%60).zfill(2)
-			self.stdscr.addstr(int(maxy*10/11), int(maxx/2-len(timertext)/2), timertext, curses.color_pair(5))
+			self.stdscr.addstr(int(maxy*10/11), int(maxx/2-len(timertext)/2), timertext)
 
 			if self.secondsleft == 0:
 				mixer.music.unpause()
