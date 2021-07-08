@@ -57,6 +57,7 @@ def key_events(stdscr, tree1):
 		if tree1.showtimer:
 			tree1.starttimer(tree1.selectedtimer)
 			tree1.timerstart.play()
+			tree1.showtimer = False
 
 		if tree1.breakover:
 			tree1.breakover = False
