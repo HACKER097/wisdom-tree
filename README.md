@@ -26,6 +26,8 @@ To add your own music, place it inside the `res/` directory (all music must be i
 
 Use `up` an `down` arrow keys an `enter` to select and start Pomodoro timers.
 
+`space` to pause and unpause. 
+
 To exit press `q`
 
 # Screenshots
