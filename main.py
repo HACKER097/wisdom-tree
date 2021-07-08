@@ -323,7 +323,10 @@ def main():
 					tree1.show_music = False
 
 				if tree1.show_music:
-					showtext = "Playing: " + tree1.music_list[tree1.music_list_num].split("/")[0]
+					if os.name == "posix":
+						showtext = "Playing: " + tree1.music_list[tree1.music_list_num].split("/")[1]
+					else:
+						showtext = "Playing: " + tree1.music_list[tree1.music_list_num].split("/")[0]
 					stdscr.addstr(int(maxy/10), int(maxx/2-len(showtext)/2), showtext, curses.A_BOLD)
 
 				music_volume+=0.001#fade in music
