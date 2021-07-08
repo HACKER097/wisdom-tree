@@ -8,19 +8,22 @@ import random
 import pickle
 import glob
 
+TIMER_WORK = (20*60, 20*60, 40*60, 50*60)
+TIMER_BREAK = (20*60, 10*60, 20*60, 10*60)
+
 
 def replaceNth(s, source, target, n): #code from stack overflow, replaces nth occurence of an item.
-    inds = [i for i in range(len(s) - len(source)+1) if s[i:i+len(source)]==source]
-    if len(inds) < n:
-        return  s# or maybe raise an error
-    s = list(s)  # can't assign to string slices. So, let's listify
-    s[inds[n-1]:inds[n-1]+len(source)] = target  # do n-1 because we start from the first occurrence of the string, not the 0-th
-    return ''.join(s)
+	inds = [i for i in range(len(s) - len(source)+1) if s[i:i+len(source)]==source]
+	if len(inds) < n:
+		return  s# or maybe raise an error
+	s = list(s)  # can't assign to string slices. So, let's listify
+	s[inds[n-1]:inds[n-1]+len(source)] = target  # do n-1 because we start from the first occurrence of the string, not the 0-th
+	return ''.join(s)
 
 def addtext(x, y, text, anilen, stdscr, color_pair): #adds and animates text in the center
 
 	text= replaceNth(text[:int(anilen)], " ", "#", 8) # aads "#" after the 7th word to split line
-	text=text.split("#")                              #splits text into 2 list
+	text=text.split("#")							  #splits text into 2 list
 	for i in range(len(text)):
 		stdscr.addstr(y+i,int(x-len(text[i])/2), str(text[i]), curses.color_pair(color_pair)) #displays the list in 2 lines
 
@@ -34,10 +37,10 @@ def getqt(): #returns random quote
 
 def printart(stdscr, file, x, y, color_pair): # prints line one by one to display text art, also in the middle
 	with open(file,"r",encoding="utf8") as f:
-	    lines = f.readlines()
+		lines = f.readlines()
 
-	    for i in range(len(lines)):
-	    	stdscr.addstr(y+i-len(lines), x-int(len(max(lines, key=len))/2), lines[i], curses.color_pair(color_pair))
+		for i in range(len(lines)):
+			stdscr.addstr(y+i-len(lines), x-int(len(max(lines, key=len))/2), lines[i], curses.color_pair(color_pair))
 
 def key_events(stdscr, tree1):
 	key = stdscr.getch()
@@ -233,31 +236,14 @@ class tree:
 
 
 	def starttimer(self, inputtime):
-
-		if inputtime == 0:
-			self.istimer = True
-			self.worktime = 20*60
-			self.breaktime = 20*60
-
-		if inputtime == 1:
-			self.istimer = True
-			self.worktime = 20*60
-			self.breaktime = 10*60
-
-		if inputtime == 2:
-			self.istimer = True
-			self.worktime = 40*60
-			self.breaktime = 20*60
-
-		if inputtime == 3:
-			self.istimer = True
-			self.worktime = 50*60
-			self.breaktime = 10*60
-
-		if inputtime == 4:
+		if inputtime >= len(TIMER_WORK):
 			self.worktime = 0
 			self.breaktime = 0
 			self.istimer == False
+		else:
+			self.istimer = True
+			self.worktime = TIMER_WORK[inputtime]
+			self.breaktime = TIMER_BREAK[inputtime]
 
 		self.workendtime = int(time.time())+self.worktime
 
@@ -410,11 +396,11 @@ def main():
 
 
 def run_app():
-    """A method to run the app"""
-    mixer.init()
-    main()
+	"""A method to run the app"""
+	mixer.init()
+	main()
 
 if __name__ == "__main__":
-    # avoid running the app if the module is imported
-    run_app()
+	# avoid running the app if the module is imported
+	run_app()
 
