@@ -42,7 +42,7 @@ Minimal interface and navigation to increase concentration.
 
 Pomodoro timer
 
-# Upcomming Features
+# Upcoming Features
 
 Play music from youtube
 
