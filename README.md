@@ -4,12 +4,9 @@ Wisdom Tree is a tui concentration app I am working on. Inspired by the wisdom t
 
 # Installation
 
-This app linux only, to install on Windows, lookup how to install curses for windows, but for most cases
+Extra step for mac `brew install sdl2_mixer`
 
-`pip install windows-curses` or `pip3 install windows-curses` should work (Only do this if on windows)
-
-
-
+Extra step for Windows `pip install windows-curses` or `pip3 install windows-curses` should work (Only do this if on windows)
 
 `git clone https://github.com/HACKER097/wisdom-tree`
 
