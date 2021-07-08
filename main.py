@@ -26,7 +26,7 @@ def addtext(x, y, text, anilen, stdscr, color_pair): #adds and animates text in 
 		stdscr.addstr(y+i,int(x-len(text[i])/2), str(text[i]), curses.color_pair(color_pair)) #displays the list in 2 lines
 
 def getrandomline(file): #returns random quote
-	lines = open(file).read().splitlines()
+	lines = open(file, encoding="utf8").read().splitlines()
 	myline =random.choice(lines)
 	return myline
 
@@ -323,7 +323,7 @@ def main():
 					tree1.show_music = False
 
 				if tree1.show_music:
-					showtext = "Playing: " + tree1.music_list[tree1.music_list_num].split("/")[1]
+					showtext = "Playing: " + tree1.music_list[tree1.music_list_num].split("/")[0]
 					stdscr.addstr(int(maxy/10), int(maxx/2-len(showtext)/2), showtext, curses.A_BOLD)
 
 				music_volume+=0.001#fade in music
