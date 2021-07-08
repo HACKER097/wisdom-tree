@@ -10,9 +10,9 @@ Wisdom tree plays a variety of music, environmental sounds and white noises to h
 
 Minimal interface and navigation to increase concentration.
 
-# Upcomming Features
-
 Pomodoro timer
+
+# Upcomming Features
 
 Play music from youtube
 
