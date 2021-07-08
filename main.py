@@ -8,7 +8,6 @@ import random
 import pickle
 import glob
 
-mixer.init()
 
 def replaceNth(s, source, target, n): #code from stack overflow, replaces nth occurence of an item.
     inds = [i for i in range(len(s) - len(source)+1) if s[i:i+len(source)]==source]
@@ -68,7 +67,7 @@ def key_events(stdscr, tree1):
 		treedata = open('res/treedata', 'wb')
 		pickle.dump(tree1.age, treedata, protocol=None )
 		treedata.close()
-		
+
 		exit()
 
 	if key == curses.KEY_RIGHT:
@@ -203,7 +202,7 @@ class tree:
 			timertext = "Break in: " + str(int(self.secondsleft/60)).zfill(2) + ":" + str(self.secondsleft%60).zfill(2)
 			stdscr.addstr(int(maxy*10/11), int(maxx/2-len(timertext)/2), timertext)
 
-			
+
 		if self.breakover:
 			self.stdscr.addstr(int(maxy*10/11), int(maxx/2-len("BREAK IS OVER, PRESS ENTER TO START NEW TIMER")/2), "BREAK IS OVER, PRESS ENTER TO START NEW TIMER", curses.A_BLINK | curses.A_BOLD)
 
@@ -263,7 +262,7 @@ class tree:
 		self.workendtime = int(time.time())+self.worktime
 
 
-		
+
 
 
 def main():
@@ -326,7 +325,7 @@ def main():
 					anilen = 1
 					tree_grow.play()
 
-				if tree1.musichidetime == int(time.time()): 
+				if tree1.musichidetime == int(time.time()):
 					tree1.show_music = False
 
 				if tree1.show_music:
@@ -361,8 +360,8 @@ def main():
 						mixer.music.unpause()
 						stdscr.refresh()
 						if tree1.istimer:
-							tree1.workendtime += time.time()-tree1.pausetime 
-							
+							tree1.workendtime += time.time()-tree1.pausetime
+
 					if key == ord("q"):
 						exit()
 
@@ -377,7 +376,7 @@ def main():
 						tree1.isbrake = False
 						mixer.music.unpause()
 						stdscr.refresh()
-					
+
 					if key == ord("q"):
 						exit()
 
@@ -397,7 +396,7 @@ def main():
 					pass
 
 
-				
+
 			stdscr.refresh()
 
 
@@ -409,4 +408,13 @@ def main():
 		stdscr.nodelay(False)
 		curses.endwin()
 
-main()
+
+def run_app():
+    """A method to run the app"""
+    mixer.init()
+    main()
+
+if __name__ == "__main__":
+    # avoid running the app if the module is imported
+    run_app()
+
