@@ -42,12 +42,12 @@ def printart(stdscr, file, x, y, color_pair): # prints line one by one to displa
 def key_events(stdscr, tree1):
 	key = stdscr.getch()
 
-	if key == curses.KEY_UP:
+	if key in (curses.KEY_UP, ord("j")):
 		tree1.showtimer = True
 		tree1.selectedtimer -= 1
 		tree1.timerhidetime = int(time.time())+5
 
-	if key == curses.KEY_DOWN:
+	if key in (curses.KEY_DOWN, ord("k")):
 		tree1.showtimer = True
 		tree1.selectedtimer += 1
 		tree1.timerhidetime = int(time.time())+5
@@ -70,7 +70,7 @@ def key_events(stdscr, tree1):
 
 		exit()
 
-	if key == curses.KEY_RIGHT:
+	if key in (curses.KEY_RIGHT, ord("l")):
 		tree1.music_list_num +=1
 		if tree1.music_list_num > len(tree1.music_list)-1:
 			tree1.music_list_num = len(tree1.music_list)-1
@@ -79,7 +79,7 @@ def key_events(stdscr, tree1):
 		tree1.show_music = True
 		tree1.musichidetime = int(time.time())+5
 
-	if key == curses.KEY_LEFT:
+	if key in (curses.KEY_LEFT, ord("h")) :
 		tree1.music_list_num -=1
 		if tree1.music_list_num < 0:
 			tree1.music_list_num = 0
