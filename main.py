@@ -184,7 +184,7 @@ class tree:
 
 			for i in range(len(self.timerlist)):
 				if i == self.selectedtimer:
-					stdscr.addstr(int((maxy-len(self.timerlist))/2)+i*2, int(maxx/10-len(self.timerlist[i])/2), self.timerlist[i], curses.A_REVERSE)
+					stdscr.addstr(int((maxy-len(self.timerlist))/2)+i*2, int(maxx/10-len(self.timerlist[i])/2)+2, self.timerlist[i], curses.A_REVERSE)
 				else:
 					stdscr.addstr(int((maxy-len(self.timerlist))/2)+i*2, int(maxx/10-len(self.timerlist[i])/2), self.timerlist[i])
 
