@@ -63,6 +63,21 @@ Use `up` an `down` arrow keys an `enter` to select and start Pomodoro timers.
 
 To exit press `q`
 
+## Custom quotes
+
+The user can use any set of quotes by adding a file called `qts.txt` with
+one qoute per line to the defualt config location:
+
+{`CONFIG_LOCATION`}/wisdom-tree
+
+where {`CONFIG_LOCATION`} is the default place to save configuration files
+for the operating system:
+
+- windows: The folder pointed to by `LOCALAPPDATA` or `APPDATA`
+- mac/linux: The folder pointed to by `XDG_CONFIG_HOME` or `~/.config`
+
+*for now, adding a custom quotes file disables the default quotes*
+
 # Screenshots
 ![alt text](https://imgur.com/nFw46EN.png)
 ![alt text](https://imgur.com/Q1rGccM.png)

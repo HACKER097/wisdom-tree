@@ -7,16 +7,37 @@ from pygame import mixer
 import time
 import random
 import pickle
-import glob
 from pathlib import Path
 
-RES_FOLDER = str(Path(__file__).parent / "res")
-QOUTE_FOLDER = str(Path(__file__).parent)
+RES_FOLDER = Path(__file__).parent / "res"
+QOUTE_FOLDER = Path(__file__).parent
+QOUTE_FILE_NAME = "qts.txt"
+QOUTE_FILE = QOUTE_FOLDER / QOUTE_FILE_NAME
 
 TIMER_WORK = (20 * 60, 20 * 60, 40 * 60, 50 * 60)
 TIMER_BREAK = (20 * 60, 10 * 60, 20 * 60, 10 * 60)
 
 __all__ = ["run_app"]
+
+def get_user_config_directory():
+    """Returns a platform-specific root directory for user config settings."""
+    # On Windows, prefer %LOCALAPPDATA%, then %APPDATA%, since we can expect the
+    # AppData directories to be ACLed to be visible only to the user and admin
+    # users (https://stackoverflow.com/a/7617601/1179226). If neither is set,
+    # return None instead of falling back to something that may be world-readable.
+    if os.name == "nt":
+        appdata = os.getenv("LOCALAPPDATA")
+        if appdata:
+            return appdata
+        appdata = os.getenv("APPDATA")
+        if appdata:
+            return appdata
+        return None
+    # On non-windows, use XDG_CONFIG_HOME if set, else default to ~/.config.
+    xdg_config_home = os.getenv("XDG_CONFIG_HOME")
+    if xdg_config_home:
+        return xdg_config_home
+    return os.path.join(os.path.expanduser("~"), ".config")
 
 def replaceNth(
     s, source, target, n
@@ -57,7 +78,7 @@ def getrandomline(file):  # returns random quote
 
 
 def getqt():  # returns random quote
-    return getrandomline(f"{QOUTE_FOLDER}/qts.txt")
+    return getrandomline(QOUTE_FILE)
 
 
 def printart(
@@ -100,7 +121,7 @@ def key_events(stdscr, tree1):
             tree1.timerstart.play()
 
     if key == ord("q"):
-        treedata = open(f"{RES_FOLDER}/treedata", "wb")
+        treedata = open(RES_FOLDER / "treedata", "wb")
         pickle.dump(tree1.age, treedata, protocol=None)
         treedata.close()
 
@@ -142,9 +163,9 @@ class tree:
         self.stdscr = stdscr
         self.age = age
         self.show_music = False
-        self.music_list = glob.glob(f"{RES_FOLDER}/*.ogg")
+        self.music_list = list(_ for _ in RES_FOLDER.glob("*.ogg"))
         self.music_list_num = 0
-        self.music = mixer.music.load(self.music_list[self.music_list_num])
+        self.music = mixer.music.load(str(self.music_list[self.music_list_num]))
         self.pause = False
         self.showtimer = False
         self.timerlist = [
@@ -155,8 +176,8 @@ class tree:
             " END TIMER NOW ",
         ]
         self.selectedtimer = 0
-        self.timerstart = mixer.Sound(f"{RES_FOLDER}/timerstart.wav")
-        self.alarm = mixer.Sound(f"{RES_FOLDER}/alarm.wav")
+        self.timerstart = mixer.Sound(str(RES_FOLDER / "timerstart.wav"))
+        self.alarm = mixer.Sound(str(RES_FOLDER / "alarm.wav"))
         self.istimer = False
         self.isbrake = False
         self.breakover = False
@@ -170,23 +191,23 @@ class tree:
 
     def display(self, maxx, maxy, seconds):
         if self.age >= 1 and self.age < 5:
-            self.artfile = f"{RES_FOLDER}/p1.txt"
+            self.artfile = str(RES_FOLDER/ "p1.txt")
         if self.age >= 5 and self.age < 10:
-            self.artfile = f"{RES_FOLDER}/p2.txt"
+            self.artfile = str(RES_FOLDER/ "p2.txt")
         if self.age >= 10 and self.age < 20:
-            self.artfile = f"{RES_FOLDER}/p3.txt"
+            self.artfile = str(RES_FOLDER/"p3.txt")
         if self.age >= 20 and self.age < 30:
-            self.artfile = f"{RES_FOLDER}/p4.txt"
+            self.artfile = str(RES_FOLDER/"p4.txt")
         if self.age >= 30 and self.age < 40:
-            self.artfile = f"{RES_FOLDER}/p5.txt"
+            self.artfile = str(RES_FOLDER/"p5.txt")
         if self.age >= 40 and self.age < 60:
-            self.artfile = f"{RES_FOLDER}/p6.txt"
+            self.artfile = str(RES_FOLDER/"p6.txt")
         if self.age >= 70 and self.age < 120:
-            self.artfile = f"{RES_FOLDER}/p7.txt"
+            self.artfile = str(RES_FOLDER/"p7.txt")
         if self.age >= 120 and self.age < 200:
-            self.artfile = f"{RES_FOLDER}/p8.txt"
+            self.artfile = str(RES_FOLDER/"p8.txt")
         if self.age >= 200:
-            self.artfile = f"{RES_FOLDER}/p9.txt"
+            self.artfile = str(RES_FOLDER/"p9.txt")
 
         printart(self.stdscr, self.artfile, int(maxx / 2), int(maxy * 3 / 4), 1)
         addtext(
@@ -340,7 +361,7 @@ def main():
     curses.init_pair(6, 1, -1)
     curses.init_pair(7, curses.COLOR_YELLOW, -1)
 
-    tree_grow = mixer.Sound(f"{RES_FOLDER}/growth.waw")
+    tree_grow = mixer.Sound(RES_FOLDER/ "growth.waw")
 
     seconds = 1
     anilen = 1
@@ -355,7 +376,7 @@ def main():
     tree1 = tree(stdscr, 1)
     mixer.music.play(-1)
 
-    treedata_in = open(f"{RES_FOLDER}/treedata", "rb")
+    treedata_in = open(RES_FOLDER/ "treedata", "rb")
     tree1.age = pickle.load(treedata_in)
 
     try:
@@ -485,6 +506,10 @@ def main():
 
 def run_app():
     """A method to run the app"""
+    global QOUTE_FILE
+    config_file = Path(get_user_config_directory()) / "wisdom-tree" / QOUTE_FILE_NAME
+    if config_file.exists():
+        QOUTE_FILE = config_file
     mixer.init()
     main()
 
