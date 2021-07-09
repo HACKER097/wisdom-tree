@@ -406,7 +406,7 @@ def main():
                     if os.name == "posix":
                         showtext = (
                             "Playing: "
-                            + tree1.music_list[tree1.music_list_num].split("/")[1]
+                            + tree1.music_list[tree1.music_list_num].split("/")[-1]
                         )
                     else:
                         showtext = (
