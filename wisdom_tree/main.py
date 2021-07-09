@@ -453,6 +453,9 @@ def main():
                             tree1.workendtime += time.time() - tree1.pausetime
 
                     if key == ord("q"):
+                        treedata = open(RES_FOLDER / "treedata", "wb")
+                        pickle.dump(tree1.age, treedata, protocol=None)
+                        treedata.close()
                         exit()
 
                 while tree1.isbrake:
@@ -473,6 +476,9 @@ def main():
                         stdscr.refresh()
 
                     if key == ord("q"):
+                        treedata = open(RES_FOLDER / "treedata", "wb")
+                        pickle.dump(tree1.age, treedata, protocol=None)
+                        treedata.close()
                         exit()
 
                 time.sleep(0.01)
