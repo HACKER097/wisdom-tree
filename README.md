@@ -10,7 +10,7 @@ Extra step for Windows `pip install windows-curses` or `pip3 install windows-cur
 
 
 ## Installation from PyPi
-`pip install wisdom-tree`
+`pip install wisdom-tree` or `pip3 install wisdom-tree`
 
 ## Installation using [pipx](https://pypa.github.io/pipx/)
 `pipx install wisdom-tree`
