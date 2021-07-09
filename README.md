@@ -9,6 +9,14 @@ Extra step for mac `brew install sdl2_mixer`
 Extra step for Windows `pip install windows-curses` or `pip3 install windows-curses`
 
 
+## Installation from PyPi
+`pip install wisdom-tree`
+
+## Installation using [pipx](https://pypa.github.io/pipx/)
+`pipx install wisdom-tree`
+
+This allows you to run the app from anywhere
+
 ## Installation From Github
 `git clone https://github.com/HACKER097/wisdom-tree`
 
@@ -19,29 +27,24 @@ or
 `pip3 install -r requirements.txt`
 
 
-## Installation from PyPi
-`pip install wisdomtree`
-
-## Installation using pipx
-`pipx install wisdomtree`
-
-This allows you to run the app from anywhere
-
 
 ## Running the app
 
 
+- From anywhere after installation from PyPi or using pipx
+
+`wisdom-tree`
+
 - From the github repository (root):
 
-`python3 wisdometree/main.py`
+`python3 wisdome_tree/main.py`
+
+*note the underscore*
 
 or
 
-`wisdomtree`
+`wisdom-tree`
 
-- From anywhere after installation from PyPi or using pipx
-
-`wisdomtree`
 
 # Usage
 

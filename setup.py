@@ -5,8 +5,7 @@ https://packaging.python.org/guides/distributing-packages-using-setuptools/
 https://github.com/HACKER097/sampleproject
 """
 
-# Always prefer setuptools over distutils
-from setuptools import setup, find_packages
+from setuptools import setup
 import pathlib
 
 here = pathlib.Path(__file__).parent.resolve()
@@ -29,7 +28,7 @@ setup(
     # There are some restrictions on what makes a valid project name
     # specification here:
     # https://packaging.python.org/specifications/core-metadata/#name
-    name='wisdomtree',  # Required
+    name='wisdom-tree',  # Required
 
     # Versions should comply with PEP 440:
     # https://www.python.org/dev/peps/pep-0440/
@@ -70,7 +69,7 @@ setup(
     #
     # This field corresponds to the "Home-Page" metadata field:
     # https://packaging.python.org/specifications/core-metadata/#home-page-optional
-    url='https://github.com/HACKER097/wisdomtree',  # Optional
+    url='https://github.com/HACKER097/wisdom-tree',  # Optional
 
     # This should be your name or the name of the organization which owns the
     # project.
@@ -129,7 +128,7 @@ setup(
     #
     #   py_modules=["my_module"],
     #
-    packages=["wisdomtree"],
+    packages=["wisdom_tree"],
 
     # Specify which Python versions you support. In contrast to the
     # 'Programming Language' classifiers above, 'pip install' will check this
@@ -160,9 +159,10 @@ setup(
 
     # If there are data files included in your packages that need to be
     # installed, specify them here.
-    package_data={  # Optional
-        '': ['*.*'],
-    },
+    # package_data={  # Optional
+    #     '': ['wisdom_data/**/*.*'],
+    # },
+    include_package_data=True,
 
     # Although 'package_data' is the preferred approach, in some case you may
     # need to place data files outside of your packages. See:
@@ -180,7 +180,7 @@ setup(
     # executes the function `main` from this package when invoked:
     entry_points={  # Optional
         'console_scripts': [
-            'wisdomtree=wisdomtree:run_app',
+            'wisdom-tree=wisdom_tree:run_app',
         ],
     },
 
@@ -194,9 +194,9 @@ setup(
     # maintainers, and where to support the project financially. The key is
     # what's used to render the link text on PyPI.
     project_urls={  # Optional
-        'Bug Reports': 'https://github.com/HACKER097/wisdomtree/issues',
+        'Bug Reports': 'https://github.com/HACKER097/wisdom_tree/issues',
         # 'Funding': 'https://donate.pypi.org',
-        'Say Thanks!': 'http://saythanks.io/to/wisdometree',
-        'Source': 'https://github.com/HACKER097/wisdomtree/',
+        # 'Say Thanks!': 'http://saythanks.io/to/wisdom_tree',
+        'Source': 'https://github.com/HACKER097/wisdom_tree/',
     },
 )
