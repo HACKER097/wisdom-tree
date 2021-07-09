@@ -411,7 +411,7 @@ def main():
                     else:
                         showtext = (
                             "Playing: "
-                            + tree1.music_list[tree1.music_list_num].split("/")[0]
+                            + str(tree1.music_list[tree1.music_list_num]).split('\\')[-1]
                         )
                     stdscr.addstr(
                         int(maxy / 10),
