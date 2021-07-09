@@ -8,6 +8,8 @@ Extra step for mac `brew install sdl2_mixer`
 
 Extra step for Windows `pip install windows-curses` or `pip3 install windows-curses`
 
+
+## Installation From Github
 `git clone https://github.com/HACKER097/wisdom-tree`
 
 `cd wisdom-tree`
@@ -16,7 +18,30 @@ Extra step for Windows `pip install windows-curses` or `pip3 install windows-cur
 or
 `pip3 install -r requirements.txt`
 
-`python3 main.py`
+
+## Installation from PyPi
+`pip install wisdomtree`
+
+## Installation using pipx
+`pipx install wisdomtree`
+
+This allows you to run the app from anywhere
+
+
+## Running the app
+
+
+- From the github repository (root):
+
+`python3 wisdometree/main.py`
+
+or
+
+`wisdomtree`
+
+- From anywhere after installation from PyPi or using pipx
+
+`wisdomtree`
 
 # Usage
 
@@ -26,9 +51,12 @@ To add your own music, place it inside the `res/` directory (all music must be i
 
 Use `up` an `down` arrow keys an `enter` to select and start Pomodoro timers.
 
+
+*You can replace arrow keys with vim's navigation keys (hjkl)*
+
 `m` to mute music.
 
-`space` to pause and unpause. 
+`space` to pause and unpause.
 
 To exit press `q`
 
