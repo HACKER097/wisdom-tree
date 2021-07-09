@@ -1,0 +1,4 @@
+include wisdom_tree/qts.txt
+include README.md
+include LICENSE
+graft wisdom_tree/res
