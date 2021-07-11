@@ -15,8 +15,8 @@ class Scanner:
         self.punctuation = {
             ' ': lambda c: self.whitespace(c),
             '.': lambda c: self.period(c),
-            ',': lambda c: self.misc_punc(c),
-            ':': lambda c: self.colon(c),
+            ',': lambda c: self.colon_comma(c),
+            ':': lambda c: self.colon_comma(c),
             ';': lambda c: self.misc_punc(c),
         }
     
@@ -84,7 +84,7 @@ class Scanner:
             self.misc_punc(current_c)
     
 
-    def colon(self, current_c):
+    def colon_comma(self, current_c):
         '''
         If the next character is a number, add the current character
         Else, misc_punc()
