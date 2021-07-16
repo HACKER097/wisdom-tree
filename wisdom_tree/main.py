@@ -8,6 +8,10 @@ import time
 import random
 import pickle
 from pathlib import Path
+from pytube import YouTube
+import re
+import urllib.request
+from subprocess import DEVNULL, STDOUT, check_call
 
 RES_FOLDER = Path(__file__).parent / "res"
 QOUTE_FOLDER = Path(__file__).parent
@@ -156,6 +160,24 @@ def key_events(stdscr, tree1):
             mixer.music.pause()
         else:
             mixer.music.unpause()
+
+def GetSong(link):
+    songfile = str(YouTube("http://youtube.com/" + link.split("/")[-1] ).streams.get_by_itag(251).download())
+    check_call(['ffmpeg', '-i', songfile, songfile + ".ogg"],  stdout=DEVNULL, stderr=STDOUT )
+    os.remove(songfile) 
+    if os.name == "posix":
+        songpath = str(RES_FOLDER) + "/" + str(songfile+".ogg").split("/")[-1]
+        os.rename(songfile+".ogg", songpath)
+    else:
+        songpath = str(RES_FOLDER) + "\\" + str(songfile+".ogg").split("\\")[-1]
+        os.rename(songfile+".ogg", songpath)
+
+    return songpath
+
+def GetLinks(search_string):
+    html = urllib.request.urlopen("https://www.youtube.com/results?search_query=" + search_string.replace(" ", "+"))
+    video_ids = re.findall(r"watch\?v=(\S{11})", html.read().decode())
+    return "http://youtube.com/watch?v=" + str(video_ids[0])
 
 
 class tree:
