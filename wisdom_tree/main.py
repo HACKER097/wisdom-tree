@@ -1,5 +1,5 @@
 import os
-
+import asyncio
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 import curses
 from curses import textpad
@@ -12,9 +12,9 @@ from pytube import YouTube
 import re
 import urllib.request
 from subprocess import DEVNULL, STDOUT, check_call
+import threading
 
 RES_FOLDER = Path(__file__).parent / "res"
-MUSIC_FOLDER = Path(__file__).parent / "music"
 QOUTE_FOLDER = Path(__file__).parent
 QOUTE_FILE_NAME = "qts.txt"
 QOUTE_FILE = QOUTE_FOLDER / QOUTE_FILE_NAME
@@ -177,10 +177,10 @@ def GetSong(link):
     check_call(['ffmpeg', '-i', songfile, songfile + ".ogg"],  stdout=DEVNULL, stderr=STDOUT )
     os.remove(songfile) 
     if os.name == "posix":
-        songpath = str(MUSIC_FOLDER) + "/" + str(songfile+".ogg").split("/")[-1]
+        songpath = str(RES_FOLDER) + "/" + str(songfile+".ogg").split("/")[-1]
         os.rename(songfile+".ogg", songpath)
     else:
-        songpath = str(MUSIC_FOLDER) + "\\" + str(songfile+".ogg").split("\\")[-1]
+        songpath = str(RES_FOLDER) + "\\" + str(songfile+".ogg").split("\\")[-1]
         os.rename(songfile+".ogg", songpath)
 
     return songpath
@@ -209,7 +209,7 @@ class tree:
             " END TIMER NOW ",
         ]
         self.featurelist = [
-            " PLAY MUSIC FROM YOUTUBE ",
+            " PLAY MUSIC FROM YOUTUBE "
         ]
         self.currentmenu = "timer"
         self.selectedtimer = 0
@@ -225,6 +225,8 @@ class tree:
             ["rain", "heavy_rain", "light_rain", "snow", "windy"]
         )
         self.youtubedisplay = False
+        self.downloaddisplay = False
+        self.spinnerstate = 0
 
         random.seed()
 
@@ -309,14 +311,14 @@ class tree:
                 if i == self.selectedtimer and self.currentmenu == "timer":
                     stdscr.addstr(
                         int((maxy - len(self.timerlist)*2) / 2) + i * 2,
-                        int(maxx / 8 - len(self.timerlist[i]) / 2) + 2,
+                        int(maxx / 9 - len(self.timerlist[i]) / 2) + 2,
                         self.timerlist[i],
                         curses.A_REVERSE,
                     )
                 else:
                     stdscr.addstr(
                         int((maxy - len(self.timerlist)*2) / 2) + i * 2,
-                        int(maxx / 8 - len(self.timerlist[i]) / 2),
+                        int(maxx / 9 - len(self.timerlist[i]) / 2),
                         self.timerlist[i],
                     )
 
@@ -324,18 +326,18 @@ class tree:
                 if i == self.selectedtimer and self.currentmenu == "feature":
                     stdscr.addstr(
                         int((maxy - len(self.featurelist)*2) / 2) + i * 2,
-                        int(maxx * 7 / 8 - len(self.featurelist[i]) / 2) - 2,
+                        int(maxx * 8 / 9 - len(self.featurelist[i]) / 2) - 2,
                         self.featurelist[i],
                         curses.A_REVERSE,
                     )
                 else:
                     stdscr.addstr(
                         int((maxy - len(self.featurelist)*2) / 2) + i * 2,
-                        int(maxx * 7 / 8 - len(self.featurelist[i]) / 2),
+                        int(maxx * 8 / 9 - len(self.featurelist[i]) / 2),
                         self.featurelist[i],
                     )
 
-        if int(time.time()) == self.timerhidetime:
+        if int(time.time()) >= self.timerhidetime:
             self.showtimer = False
 
         if self.istimer:
@@ -406,9 +408,9 @@ class tree:
         if inputfeature == 0:
             self.youtubedisplay = True
 
-    def youtube(self, stdscr):
+    def youtube(self, stdscr, maxx):
         if self.youtubedisplay:
-            curses.textpad.rectangle(stdscr, 0,0,2,80)
+            curses.textpad.rectangle(stdscr, 0,0,2, maxx-1)
             stdscr.addstr(1,1, "ENTER SEARCH QUERY/LINK : ")
             stdscr.refresh()
 
@@ -428,24 +430,48 @@ class tree:
                 stdscr.keypad(True)
                 curses.curs_set(0)
 
+
+            stdscr.addstr(1,1, "GETTING AUDIO")
+
+            getsongthread = threading.Thread(target=self.playyoutube, args=(songinput,))
+            getsongthread.daemon = True
+            getsongthread.start()
+
             self.youtubedisplay = False
 
+            self.downloaddisplay = True
 
-            stdscr.addstr(1,1, "                                                                               ")
-            stdscr.addstr(1,1, "GETTING AUDIO")
-            stdscr.refresh()
+            del songinput
 
 
-            if bool(re.match("http(?:s?):\/\/(?:www\.)?youtu(?:be\.com\/watch\?v=|\.be\/)([\w\-\_]*)(&(amp;)?‌​[\w\?‌​=]*)?",songinput)):
-                song = (GetSong(songinput))
-            else:
-                song = GetSong(GetLinks(songinput))
 
-            mixer.music.load(song)
-            mixer.music.play()
+        if self.downloaddisplay:
+            spinner =  ["(●     )","( ●    )","(  ●   )","(   ●  )","(    ● )","(     ●)","(    ● )","(   ●  )","(  ●   )","( ●    )","(●     )"]
+            self.spinnerstate+=0.1
+            if self.spinnerstate > len(spinner)-1:
+                self.spinnerstate = 0
+            curses.textpad.rectangle(stdscr, 0,0,2, maxx-1)
+            stdscr.addstr(1,1, "GETTING AUDIO  " + spinner[int(self.spinnerstate)])
 
-            #os.remove(song)
 
+
+
+    def playyoutube(self, songinput):
+
+
+        if bool(re.match("http(?:s?):\/\/(?:www\.)?youtu(?:be\.com\/watch\?v=|\.be\/)([\w\-\_]*)(&(amp;)?‌​[\w\?‌​=]*)?",songinput)):
+            song = GetSong(GetLinks(songinput))
+        else:
+            song = GetSong(GetLinks(songinput))
+
+        mixer.music.load(song)
+        mixer.music.play()
+
+        os.remove(song)
+
+        self.downloaddisplay = False
+
+        time.sleep(100)
 
 
 
@@ -511,7 +537,7 @@ def main():
                     anilen = 1
                     tree_grow.play()
 
-                if tree1.musichidetime == int(time.time()):
+                if tree1.musichidetime <= int(time.time()):
                     tree1.show_music = False
 
                 if tree1.show_music:
@@ -542,7 +568,7 @@ def main():
 
                 tree1.menudisplay(stdscr, maxy, maxx)
 
-                tree1.youtube(stdscr)
+                tree1.youtube(stdscr, maxx)
 
                 tree1.timer()
 
