@@ -14,6 +14,7 @@ import urllib.request
 from subprocess import DEVNULL, STDOUT, check_call
 
 RES_FOLDER = Path(__file__).parent / "res"
+MUSIC_FOLDER = Path(__file__).parent / "music"
 QOUTE_FOLDER = Path(__file__).parent
 QOUTE_FILE_NAME = "qts.txt"
 QOUTE_FILE = QOUTE_FOLDER / QOUTE_FILE_NAME
@@ -115,7 +116,10 @@ def key_events(stdscr, tree1):
 
     if key == curses.KEY_ENTER or key == 10 or key == 13:  # this is enter key
         if tree1.showtimer:
-            tree1.starttimer(tree1.selectedtimer)
+            if tree1.currentmenu == "timer":
+                tree1.starttimer(tree1.selectedtimer)
+            else:
+                tree1.featureselect(tree1.selectedtimer)
             tree1.timerstart.play()
             tree1.showtimer = False
 
@@ -132,22 +136,29 @@ def key_events(stdscr, tree1):
         exit()
 
     if key in (curses.KEY_RIGHT, ord("l")):
-        tree1.music_list_num += 1
-        if tree1.music_list_num > len(tree1.music_list) - 1:
-            tree1.music_list_num = len(tree1.music_list) - 1
-        music = mixer.music.load(tree1.music_list[tree1.music_list_num])
-        mixer.music.play(-1)
-        tree1.show_music = True
-        tree1.musichidetime = int(time.time()) + 5
+        if tree1.showtimer:
+            tree1.currentmenu = "feature"
+
+        else:
+            tree1.music_list_num += 1
+            if tree1.music_list_num > len(tree1.music_list) - 1:
+                tree1.music_list_num = len(tree1.music_list) - 1
+            music = mixer.music.load(tree1.music_list[tree1.music_list_num])
+            mixer.music.play(-1)
+            tree1.show_music = True
+            tree1.musichidetime = int(time.time()) + 5
 
     if key in (curses.KEY_LEFT, ord("h")):
-        tree1.music_list_num -= 1
-        if tree1.music_list_num < 0:
-            tree1.music_list_num = 0
-        music = mixer.music.load(tree1.music_list[tree1.music_list_num])
-        mixer.music.play(-1)
-        tree1.show_music = True
-        tree1.musichidetime = int(time.time()) + 5
+        if tree1.showtimer:
+            tree1.currentmenu = "timer"
+        else:
+            tree1.music_list_num -= 1
+            if tree1.music_list_num < 0:
+                tree1.music_list_num = 0
+            music = mixer.music.load(tree1.music_list[tree1.music_list_num])
+            mixer.music.play(-1)
+            tree1.show_music = True
+            tree1.musichidetime = int(time.time()) + 5
 
     if key == ord(" "):
         mixer.music.pause()
@@ -166,10 +177,10 @@ def GetSong(link):
     check_call(['ffmpeg', '-i', songfile, songfile + ".ogg"],  stdout=DEVNULL, stderr=STDOUT )
     os.remove(songfile) 
     if os.name == "posix":
-        songpath = str(RES_FOLDER) + "/" + str(songfile+".ogg").split("/")[-1]
+        songpath = str(MUSIC_FOLDER) + "/" + str(songfile+".ogg").split("/")[-1]
         os.rename(songfile+".ogg", songpath)
     else:
-        songpath = str(RES_FOLDER) + "\\" + str(songfile+".ogg").split("\\")[-1]
+        songpath = str(MUSIC_FOLDER) + "\\" + str(songfile+".ogg").split("\\")[-1]
         os.rename(songfile+".ogg", songpath)
 
     return songpath
@@ -197,6 +208,10 @@ class tree:
             " Pomodro 50+10 ",
             " END TIMER NOW ",
         ]
+        self.featurelist = [
+            " PLAY MUSIC FROM YOUTUBE ",
+        ]
+        self.currentmenu = "timer"
         self.selectedtimer = 0
         self.timerstart = mixer.Sound(str(RES_FOLDER / "timerstart.wav"))
         self.alarm = mixer.Sound(str(RES_FOLDER / "alarm.wav"))
@@ -209,6 +224,8 @@ class tree:
         self.season = random.choice(
             ["rain", "heavy_rain", "light_rain", "snow", "windy"]
         )
+        self.youtubedisplay = False
+
         random.seed()
 
     def display(self, maxx, maxy, seconds):
@@ -272,27 +289,50 @@ class tree:
         if self.season == "windy":
             self.rain(maxx, maxy, seconds, 20, 30, "-", 4)
 
-    def timerdisplay(self, stdscr, maxy, maxx):
+    def menudisplay(self, stdscr, maxy, maxx):
         if self.showtimer:
 
-            if self.selectedtimer > len(self.timerlist) - 1:
-                self.selectedtimer = len(self.timerlist) - 1
-            if self.selectedtimer < 0:
-                self.selectedtimer = 0
+            if self.currentmenu == "timer":
+                if self.selectedtimer > len(self.timerlist) - 1:
+                    self.selectedtimer = len(self.timerlist) - 1
+                if self.selectedtimer < 0:
+                    self.selectedtimer = 0
+
+            if self.currentmenu == "feature":
+                if self.selectedtimer > len(self.featurelist) - 1:
+                    self.selectedtimer = len(self.featurelist) - 1
+                if self.selectedtimer < 0:
+                    self.selectedtimer = 0
+
 
             for i in range(len(self.timerlist)):
-                if i == self.selectedtimer:
+                if i == self.selectedtimer and self.currentmenu == "timer":
                     stdscr.addstr(
-                        int((maxy - len(self.timerlist)) / 2) + i * 2,
-                        int(maxx / 10 - len(self.timerlist[i]) / 2) + 2,
+                        int((maxy - len(self.timerlist)*2) / 2) + i * 2,
+                        int(maxx / 8 - len(self.timerlist[i]) / 2) + 2,
                         self.timerlist[i],
                         curses.A_REVERSE,
                     )
                 else:
                     stdscr.addstr(
-                        int((maxy - len(self.timerlist)) / 2) + i * 2,
-                        int(maxx / 10 - len(self.timerlist[i]) / 2),
+                        int((maxy - len(self.timerlist)*2) / 2) + i * 2,
+                        int(maxx / 8 - len(self.timerlist[i]) / 2),
                         self.timerlist[i],
+                    )
+
+            for i in range(len(self.featurelist)):
+                if i == self.selectedtimer and self.currentmenu == "feature":
+                    stdscr.addstr(
+                        int((maxy - len(self.featurelist)*2) / 2) + i * 2,
+                        int(maxx * 7 / 8 - len(self.featurelist[i]) / 2) - 2,
+                        self.featurelist[i],
+                        curses.A_REVERSE,
+                    )
+                else:
+                    stdscr.addstr(
+                        int((maxy - len(self.featurelist)*2) / 2) + i * 2,
+                        int(maxx * 7 / 8 - len(self.featurelist[i]) / 2),
+                        self.featurelist[i],
                     )
 
         if int(time.time()) == self.timerhidetime:
@@ -351,7 +391,7 @@ class tree:
             self.breakstart()
 
     def starttimer(self, inputtime):
-        if inputtime >= len(TIMER_WORK):
+        if inputtime >= 4:
             self.worktime = 0
             self.breaktime = 0
             self.istimer == False
@@ -361,6 +401,56 @@ class tree:
             self.breaktime = TIMER_BREAK[inputtime]
 
         self.workendtime = int(time.time()) + self.worktime
+
+    def featureselect(self, inputfeature):
+        if inputfeature == 0:
+            self.youtubedisplay = True
+
+    def youtube(self, stdscr):
+        if self.youtubedisplay:
+            curses.textpad.rectangle(stdscr, 0,0,2,80)
+            stdscr.addstr(1,1, "ENTER SEARCH QUERY/LINK : ")
+            stdscr.refresh()
+
+            if not "songinput" in locals():
+
+                curses.echo()
+                curses.nocbreak()
+                stdscr.nodelay(False)
+                stdscr.keypad(False)
+                curses.curs_set(1)
+
+                songinput = str(stdscr.getstr())
+
+                curses.noecho()
+                curses.cbreak()
+                stdscr.nodelay(True)
+                stdscr.keypad(True)
+                curses.curs_set(0)
+
+            self.youtubedisplay = False
+
+
+            stdscr.addstr(1,1, "                                                                               ")
+            stdscr.addstr(1,1, "GETTING AUDIO")
+            stdscr.refresh()
+
+
+            if bool(re.match("http(?:s?):\/\/(?:www\.)?youtu(?:be\.com\/watch\?v=|\.be\/)([\w\-\_]*)(&(amp;)?‌​[\w\?‌​=]*)?",songinput)):
+                song = (GetSong(songinput))
+            else:
+                song = GetSong(GetLinks(songinput))
+
+            mixer.music.load(song)
+            mixer.music.play()
+
+            #os.remove(song)
+
+
+
+
+
+
 
 
 def main():
@@ -450,7 +540,9 @@ def main():
 
                 tree1.seasons(maxx, maxy, seconds)
 
-                tree1.timerdisplay(stdscr, maxy, maxx)
+                tree1.menudisplay(stdscr, maxy, maxx)
+
+                tree1.youtube(stdscr)
 
                 tree1.timer()
 
