@@ -7,7 +7,7 @@ import time
 import random
 import pickle
 from pathlib import Path
-from pytube import YouTube
+from pytube import YouTube, Playlist
 import re
 import urllib.request
 import threading
@@ -168,11 +168,16 @@ def key_events(stdscr, tree1):
 
         if mixer.music.get_busy():
             mixer.music.pause()
+            ismusicpause = True
         else:
             mixer.music.unpause()
+            ismusicpause = False
 
     if key == ord("r"):
         mixer.music.play()
+
+    if key == ord("n"):
+        tree1.lofiradio()
 
 def GetSong(link):
     songfile = str(YouTube("http://youtube.com/" + link.split("/")[-1] ).streams.get_by_itag(251).download())
@@ -215,7 +220,8 @@ class tree:
             " END TIMER NOW ",
         ]
         self.featurelist = [
-            " PLAY MUSIC FROM YOUTUBE "
+            " PLAY MUSIC FROM YOUTUBE ",
+            " LOFI RADIO "
         ]
         self.currentmenu = "timer"
         self.selectedtimer = 0
@@ -236,7 +242,9 @@ class tree:
         self.notifyendtime = 0
         self.isnotify = False
         self.notifystring = " "
-
+        self.playlist = Playlist("https://www.youtube.com/playlist?list=PL6fhs6TSspZvN45CPJApnMYVsWhkt55h7")
+        self.radiomode = False
+        self.isloading = False
         random.seed()
 
     def display(self, maxx, maxy, seconds):
@@ -422,6 +430,34 @@ class tree:
     def featureselect(self, inputfeature):
         if inputfeature == 0:
             self.youtubedisplay = True
+        if inputfeature == 1:
+            self.lofiradio()
+
+    def loading(self, stdscr, maxx):
+            spinner = [
+            "[    ]",
+            "[=   ]",
+            "[==  ]",
+            "[=== ]",
+            "[ ===]",
+            "[  ==]",
+            "[   =]",
+            "[    ]",
+            "[   =]",
+            "[  ==]",
+            "[ ===]",
+            "[====]",
+            "[=== ]",
+            "[==  ]",
+            "[=   ]"
+        ]
+            self.spinnerstate+=0.1
+            if self.spinnerstate > len(spinner)-1:
+                self.spinnerstate = 0
+            curses.textpad.rectangle(stdscr, 0,0,2, maxx-1)
+            stdscr.addstr(1,1, "GETTING AUDIO  " + spinner[int(self.spinnerstate)])
+
+
 
     def youtube(self, stdscr, maxx):
         if self.youtubedisplay:
@@ -461,30 +497,7 @@ class tree:
 
 
         if self.downloaddisplay:
-            spinner = [
-            "[    ]",
-            "[=   ]",
-            "[==  ]",
-            "[=== ]",
-            "[ ===]",
-            "[  ==]",
-            "[   =]",
-            "[    ]",
-            "[   =]",
-            "[  ==]",
-            "[ ===]",
-            "[====]",
-            "[=== ]",
-            "[==  ]",
-            "[=   ]"
-        ]
-            self.spinnerstate+=0.1
-            if self.spinnerstate > len(spinner)-1:
-                self.spinnerstate = 0
-            curses.textpad.rectangle(stdscr, 0,0,2, maxx-1)
-            stdscr.addstr(1,1, "GETTING AUDIO  " + spinner[int(self.spinnerstate)])
-
-
+            self.loading(stdscr, maxx)
 
 
     def playyoutube(self, songinput):
@@ -510,6 +523,43 @@ class tree:
         self.isnotify = True
         self.notifystring = "Playing: " + str(song).split("/")[-1].split(".webm.ogg")[0]
 
+    def getlofisong(self): # some links dont work, usre recurtion to find a link which works
+        try:
+            song = GetSong(self.playlist[random.randrange(0, len(self.playlist))])
+        except:
+            song = self.getlofisong()
+
+        return song
+
+    def lofiradio(self):
+         #lofi playlist from youtube
+
+        self.isloading = True
+        self.radiomode = True
+
+        self.isloading = True
+
+        radiothread = threading.Thread(target=self.actuallofiradio)
+        radiothread.daemon = True
+        radiothread.start()
+
+
+    def actuallofiradio(self):
+
+        if not hasattr(self, "lofisong"):
+            self.lofisong = self.getlofisong()
+
+        mixer.music.load(self.lofisong)
+        mixer.music.play()
+
+        self.notifyendtime = int(time.time()) + 5
+        self.isnotify = True
+        self.notifystring = "Playing: " + str(self.lofisong).split("/")[-1].split(".webm.ogg")[0]
+
+        os.remove(self.lofisong)
+        self.lofisong = self.getlofisong()
+
+        self.isloading = False
 
 
 
@@ -552,6 +602,8 @@ def main():
 
     treedata_in = open(RES_FOLDER/ "treedata", "rb")
     tree1.age = pickle.load(treedata_in)
+
+    ismusicpause = False
 
     try:
         while run:
@@ -607,6 +659,12 @@ def main():
                 tree1.youtube(stdscr, maxx)
 
                 tree1.timer()
+
+                if tree1.radiomode and not mixer.music.get_busy() and ismusicpause:
+                    tree1.lofiradio()
+
+                if tree1.isloading:
+                    tree1.loading(stdscr, maxx)
 
                 tree1.notify(stdscr, maxy, maxx)
 
