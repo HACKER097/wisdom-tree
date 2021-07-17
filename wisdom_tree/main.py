@@ -171,6 +171,9 @@ def key_events(stdscr, tree1):
         else:
             mixer.music.unpause()
 
+    if key == ord("r"):
+        mixer.music.play()
+
 def GetSong(link):
     songfile = str(YouTube("http://youtube.com/" + link.split("/")[-1] ).streams.get_by_itag(251).download())
 
@@ -437,7 +440,7 @@ class tree:
             stdscr.addstr(1,1, "GETTING AUDIO")
 
             getsongthread = threading.Thread(target=self.playyoutube, args=(songinput,))
-            #getsongthread.daemon = True
+            getsongthread.daemon = True
             getsongthread.start()
 
             self.youtubedisplay = False
