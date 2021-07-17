@@ -136,6 +136,7 @@ def key_events(stdscr, tree1):
 
     if key in (curses.KEY_RIGHT, ord("l")):
         if tree1.showtimer:
+            tree1.selectedtimer = 0
             tree1.currentmenu = "feature"
 
         else:
@@ -149,6 +150,7 @@ def key_events(stdscr, tree1):
 
     if key in (curses.KEY_LEFT, ord("h")):
         if tree1.showtimer:
+            tree1.selectedtimer = 0
             tree1.currentmenu = "timer"
         else:
             tree1.music_list_num -= 1
@@ -334,14 +336,14 @@ class tree:
                 if i == self.selectedtimer and self.currentmenu == "timer":
                     stdscr.addstr(
                         int((maxy - len(self.timerlist)*2) / 2) + i * 2,
-                        int(maxx / 9 - len(self.timerlist[i]) / 2) + 2,
+                        int(maxx / 25 + 2),
                         self.timerlist[i],
                         curses.A_REVERSE,
                     )
                 else:
                     stdscr.addstr(
                         int((maxy - len(self.timerlist)*2) / 2) + i * 2,
-                        int(maxx / 9 - len(self.timerlist[i]) / 2),
+                        int(maxx / 25),
                         self.timerlist[i],
                     )
 
@@ -349,14 +351,14 @@ class tree:
                 if i == self.selectedtimer and self.currentmenu == "feature":
                     stdscr.addstr(
                         int((maxy - len(self.featurelist)*2) / 2) + i * 2,
-                        int(maxx * 8 / 9 - len(self.featurelist[i]) / 2) - 2,
+                        int(maxx * 24 / 25 - len(self.featurelist[i])) - 2,
                         self.featurelist[i],
                         curses.A_REVERSE,
                     )
                 else:
                     stdscr.addstr(
                         int((maxy - len(self.featurelist)*2) / 2) + i * 2,
-                        int(maxx * 8 / 9 - len(self.featurelist[i]) / 2),
+                        int(maxx * 24 / 25 - len(self.featurelist[i])),
                         self.featurelist[i],
                     )
 
@@ -519,7 +521,7 @@ class tree:
         self.downloaddisplay = False
 
 
-        self.notifyendtime = int(time.time()) + 5
+        self.notifyendtime = int(time.time()) + 10
         self.isnotify = True
         self.notifystring = "Playing: " + str(song).split("/")[-1].split(".webm.ogg")[0]
 
@@ -552,7 +554,7 @@ class tree:
         mixer.music.load(self.lofisong)
         mixer.music.play()
 
-        self.notifyendtime = int(time.time()) + 5
+        self.notifyendtime = int(time.time()) + 10
         self.isnotify = True
         self.notifystring = "Playing: " + str(self.lofisong).split("/")[-1].split(".webm.ogg")[0]
 
