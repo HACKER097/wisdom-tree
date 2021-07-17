@@ -170,15 +170,13 @@ def key_events(stdscr, tree1):
 
         if mixer.music.get_busy():
             mixer.music.pause()
-            ismusicpause = True
         else:
             mixer.music.unpause()
-            ismusicpause = False
 
     if key == ord("r"):
         mixer.music.play()
 
-    if key == ord("n"):
+    if not tree1.isloading and key == ord("n"):
         tree1.lofiradio()
 
 def GetSong(link):
@@ -430,9 +428,11 @@ class tree:
         self.workendtime = int(time.time()) + self.worktime
 
     def featureselect(self, inputfeature):
+        self.radiomode = False
         if inputfeature == 0:
             self.youtubedisplay = True
         if inputfeature == 1:
+            self.playlist = Playlist("https://www.youtube.com/playlist?list=PL6fhs6TSspZvN45CPJApnMYVsWhkt55h7")
             self.lofiradio()
 
     def loading(self, stdscr, maxx):
@@ -539,8 +539,6 @@ class tree:
         self.isloading = True
         self.radiomode = True
 
-        self.isloading = True
-
         radiothread = threading.Thread(target=self.actuallofiradio)
         radiothread.daemon = True
         radiothread.start()
@@ -553,6 +551,8 @@ class tree:
 
         mixer.music.load(self.lofisong)
         mixer.music.play()
+
+        self.lofisonglen = mixer.Sound(self.lofisong).get_length()
 
         self.notifyendtime = int(time.time()) + 10
         self.isnotify = True
@@ -605,7 +605,6 @@ def main():
     treedata_in = open(RES_FOLDER/ "treedata", "rb")
     tree1.age = pickle.load(treedata_in)
 
-    ismusicpause = False
 
     try:
         while run:
@@ -662,7 +661,7 @@ def main():
 
                 tree1.timer()
 
-                if tree1.radiomode and not mixer.music.get_busy() and ismusicpause:
+                if not tree1.isloading and tree1.radiomode and mixer.music.get_pos() == -1:
                     tree1.lofiradio()
 
                 if tree1.isloading:
