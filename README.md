@@ -100,3 +100,13 @@ Play music from youtube
 
 Lo-Fi radio
 
+# Donating 
+
+Before you consider donating, please note that I am still a student and code in my free time, donating will not help me work on wisdom-tree or my other projects faster.
+
+
+
+Monero: `42hk7SW7mdM5JXYRLAaiD47bqchNGfXJ8aQGhuQJuF9cTBhC5w94aUEcxt7NfokV2URy78RgSXdbiUGYCQZsPFjqDfi7Lto`
+
+Bitcoin: `bc1qzq4m6vgh45u976rwju7pct52y85hhc4hq4vffh`
+
