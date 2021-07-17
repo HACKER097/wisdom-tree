@@ -96,17 +96,25 @@ Pomodoro timer
 
 Play music from youtube
 
-# Upcoming Features
-
 Lo-Fi radio
 
-# Donating 
+# Upcoming Features
 
-Before you consider donating, please note that I am still a student and code in my free time, donating will not help me work on wisdom-tree or my other projects faster.
+All done here!
+
+# Tipping 
+
+Before you consider donating, please note that I am still a student and code in my free time, donating **will not** help me work on wisdom-tree or my other projects faster. Your tip will can end up on onlycoins at worse, or pay for my collage tuition at best.
 
 
 
-Monero:`42hk7SW7mdM5JXYRLAaiD47bqchNGfXJ8aQGhuQJuF9cTBhC5w94aUEcxt7NfokV2URy78RgSXdbiUGYCQZsPFjqDfi7Lto`
+Monero:- 
 
-Bitcoin:`bc1qzq4m6vgh45u976rwju7pct52y85hhc4hq4vffh`
+`42hk7SW7mdM5JXYRLAaiD47bqchNGfXJ8aQGhuQJuF9cTBhC5w94aUEcxt7NfokV2URy78RgSXdbiUGYCQZsPFjqDfi7Lto`
+
+
+
+Bitcoin:- 
+
+`bc1qzq4m6vgh45u976rwju7pct52y85hhc4hq4vffh`
 
