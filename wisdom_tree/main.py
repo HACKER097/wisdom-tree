@@ -1,5 +1,4 @@
 import os
-import asyncio
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 import curses
 from curses import textpad
@@ -11,8 +10,8 @@ from pathlib import Path
 from pytube import YouTube
 import re
 import urllib.request
-from subprocess import DEVNULL, STDOUT, check_call
 import threading
+from pydub import AudioSegment
 
 RES_FOLDER = Path(__file__).parent / "res"
 QOUTE_FOLDER = Path(__file__).parent
@@ -174,14 +173,16 @@ def key_events(stdscr, tree1):
 
 def GetSong(link):
     songfile = str(YouTube("http://youtube.com/" + link.split("/")[-1] ).streams.get_by_itag(251).download())
-    check_call(['ffmpeg', '-i', songfile, songfile + ".ogg"],  stdout=DEVNULL, stderr=STDOUT )
+
+    AudioSegment.from_file(songfile, "webm").export(str(songfile + ".ogg"), format="ogg")
+
     os.remove(songfile) 
     if os.name == "posix":
         songpath = str(RES_FOLDER) + "/" + str(songfile+".ogg").split("/")[-1]
-        os.rename(songfile+".ogg", songpath)
     else:
         songpath = str(RES_FOLDER) + "\\" + str(songfile+".ogg").split("\\")[-1]
-        os.rename(songfile+".ogg", songpath)
+        
+    os.rename(songfile+".ogg", songpath)
 
     return songpath
 
@@ -190,6 +191,8 @@ def GetLinks(search_string):
     video_ids = re.findall(r"watch\?v=(\S{11})", html.read().decode())
     return "http://youtube.com/watch?v=" + str(video_ids[0])
 
+#print(GetSong(GetLinks(input())))
+#time.sleep(100)
 
 class tree:
     def __init__(self, stdscr, age):
@@ -434,7 +437,7 @@ class tree:
             stdscr.addstr(1,1, "GETTING AUDIO")
 
             getsongthread = threading.Thread(target=self.playyoutube, args=(songinput,))
-            getsongthread.daemon = True
+            #getsongthread.daemon = True
             getsongthread.start()
 
             self.youtubedisplay = False
@@ -446,7 +449,23 @@ class tree:
 
 
         if self.downloaddisplay:
-            spinner =  ["(●     )","( ●    )","(  ●   )","(   ●  )","(    ● )","(     ●)","(    ● )","(   ●  )","(  ●   )","( ●    )","(●     )"]
+            spinner = [
+            "[    ]",
+            "[=   ]",
+            "[==  ]",
+            "[=== ]",
+            "[ ===]",
+            "[  ==]",
+            "[   =]",
+            "[    ]",
+            "[   =]",
+            "[  ==]",
+            "[ ===]",
+            "[====]",
+            "[=== ]",
+            "[==  ]",
+            "[=   ]"
+        ]
             self.spinnerstate+=0.1
             if self.spinnerstate > len(spinner)-1:
                 self.spinnerstate = 0
@@ -458,20 +477,20 @@ class tree:
 
     def playyoutube(self, songinput):
 
-
-        if bool(re.match("http(?:s?):\/\/(?:www\.)?youtu(?:be\.com\/watch\?v=|\.be\/)([\w\-\_]*)(&(amp;)?‌​[\w\?‌​=]*)?",songinput)):
-            song = GetSong(GetLinks(songinput))
-        else:
+        try:
             song = GetSong(GetLinks(songinput))
 
-        mixer.music.load(song)
-        mixer.music.play()
+            mixer.music.load(song)
+            mixer.music.play()
 
-        os.remove(song)
+            os.remove(song)
+
+        except:
+            self.downloaddisplay = False
+            exit()
 
         self.downloaddisplay = False
 
-        time.sleep(100)
 
 
 
