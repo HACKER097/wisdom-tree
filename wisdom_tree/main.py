@@ -233,6 +233,9 @@ class tree:
         self.youtubedisplay = False
         self.downloaddisplay = False
         self.spinnerstate = 0
+        self.notifyendtime = 0
+        self.isnotify = False
+        self.notifystring = " "
 
         random.seed()
 
@@ -296,6 +299,12 @@ class tree:
 
         if self.season == "windy":
             self.rain(maxx, maxy, seconds, 20, 30, "-", 4)
+
+    def notify(self, stdscr, maxy, maxx):
+        if self.isnotify and time.time() <= self.notifyendtime:
+            curses.textpad.rectangle(stdscr, 0,0,2, maxx-1)
+            stdscr.addstr(1,1, self.notifystring[:maxx-3-3] + "...", curses.A_BOLD)
+            self.downloaddisplay = False
 
     def menudisplay(self, stdscr, maxy, maxx):
         if self.showtimer:
@@ -489,12 +498,17 @@ class tree:
             os.remove(song)
 
         except:
-            self.downloaddisplay = False
+            self.notifyendtime = int(time.time()) + 5
+            self.isnotify = True
+            self.notifystring = "ERROR GETTING AUDIO, PLEASE TRY AGAIN"
             exit()
 
         self.downloaddisplay = False
 
 
+        self.notifyendtime = int(time.time()) + 5
+        self.isnotify = True
+        self.notifystring = "Playing: " + str(song).split("/")[-1].split(".webm.ogg")[0]
 
 
 
@@ -593,6 +607,8 @@ def main():
                 tree1.youtube(stdscr, maxx)
 
                 tree1.timer()
+
+                tree1.notify(stdscr, maxy, maxx)
 
                 mixer.music.set_volume(music_volume)
 
