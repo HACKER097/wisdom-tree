@@ -45,7 +45,7 @@ def get_user_config_directory():
 
 def isinternet():
     try:
-        urllib.request.urlopen("https://youtube.com") #Python 3.x
+        urllib.request.urlopen("https://youtube.com", timeout = 10) #Python 3.x
         return True
     except:
         return False
@@ -573,23 +573,33 @@ class tree:
 
     def actuallofiradio(self):
 
-        if not hasattr(self, "lofisong"):
+        try:
+
+            if not hasattr(self, "lofisong"):
+                self.lofisong = self.getlofisong()
+
+            mixer.music.load(self.lofisong)
+            mixer.music.play()
+
+            self.lofisonglen = mixer.Sound(self.lofisong).get_length()
+
+            self.notifyendtime = int(time.time()) + 10
+            self.isnotify = True
+            self.notifystring = "Playing: " + str(self.lofisong).split("/")[-1].split(".webm.ogg")[0]
+
+            os.remove(self.lofisong)
             self.lofisong = self.getlofisong()
 
-        mixer.music.load(self.lofisong)
-        mixer.music.play()
+            self.isloading = False
 
-        self.lofisonglen = mixer.Sound(self.lofisong).get_length()
+        except:
+            self.isloading = False
+            self.radiomodeo = False
 
-        self.notifyendtime = int(time.time()) + 10
-        self.isnotify = True
-        self.notifystring = "Playing: " + str(self.lofisong).split("/")[-1].split(".webm.ogg")[0]
-
-        os.remove(self.lofisong)
-        self.lofisong = self.getlofisong()
-
-        self.isloading = False
-
+            self.notifyendtime = int(time.time()) + 10
+            self.isnotify = True
+            self.notifystring = "ERROR GETTING AUDIO, PLEASE TRY AGAIN"
+            exit()
 
 
 
