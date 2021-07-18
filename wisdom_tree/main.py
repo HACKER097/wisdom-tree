@@ -43,6 +43,13 @@ def get_user_config_directory():
         return xdg_config_home
     return os.path.join(os.path.expanduser("~"), ".config")
 
+def isinternet():
+    try:
+        urllib.request.urlopen("https://youtube.com") #Python 3.x
+        return True
+    except:
+        return False
+
 def replaceNth(
     s, source, target, n
 ):  # code from stack overflow, replaces nth occurence of an item.
@@ -536,7 +543,20 @@ class tree:
         try:
             song = GetSong(self.playlist[random.randrange(0, len(self.playlist))])
         except:
-            song = self.getlofisong()
+            if isinternet():
+                song = self.getlofisong()
+            else:
+                self.isloading = False
+
+                self.notifyendtime = int(time.time()) + 10
+                self.isnotify = True
+                self.notifystring = "UNABLE TO CONNECT"
+                self.radiomode = False
+                for file in list(_ for _ in QOUTE_FOLDER.glob("*.ogg")):
+                    os.remove(file)
+                for file in list(_ for _ in QOUTE_FOLDER.glob("*.webm")):
+                    os.remove(file)
+                exit()
 
         return song
 
