@@ -131,7 +131,10 @@ def key_events(stdscr, tree1):
         treedata = open(RES_FOLDER / "treedata", "wb")
         pickle.dump(tree1.age, treedata, protocol=None)
         treedata.close()
-
+        for file in list(_ for _ in QOUTE_FOLDER.glob("*.ogg")):
+            os.remove(file)
+        for file in list(_ for _ in QOUTE_FOLDER.glob("*.webm")):
+            os.remove(file)
         exit()
 
     if key in (curses.KEY_RIGHT, ord("l")):
@@ -186,9 +189,9 @@ def GetSong(link):
 
     os.remove(songfile) 
     if os.name == "posix":
-        songpath = str(RES_FOLDER) + "/" + str(songfile+".ogg").split("/")[-1]
+        songpath = str(songfile+".ogg").split("/")[-1]
     else:
-        songpath = str(RES_FOLDER) + "\\" + str(songfile+".ogg").split("\\")[-1]
+        songpath = str(songfile+".ogg").split("\\")[-1]
         
     os.rename(songfile+".ogg", songpath)
 
@@ -213,10 +216,10 @@ class tree:
         self.pause = False
         self.showtimer = False
         self.timerlist = [
-            " Pomodro 20+20 ",
-            " Pomodro 20+10 ",
-            " Pomodro 40+20 ",
-            " Pomodro 50+10 ",
+            " POMODORO 20+20 ",
+            " POMODORO 20+10 ",
+            " POMODORO 40+20 ",
+            " POMODORO 50+10 ",
             " END TIMER NOW ",
         ]
         self.featurelist = [
@@ -334,7 +337,7 @@ class tree:
                 if i == self.selectedtimer and self.currentmenu == "timer":
                     stdscr.addstr(
                         int((maxy - len(self.timerlist)*2) / 2) + i * 2,
-                        int(maxx / 25 + 2),
+                        int(maxx / 25 + 4),
                         self.timerlist[i],
                         curses.A_REVERSE,
                     )
@@ -349,7 +352,7 @@ class tree:
                 if i == self.selectedtimer and self.currentmenu == "feature":
                     stdscr.addstr(
                         int((maxy - len(self.featurelist)*2) / 2) + i * 2,
-                        int(maxx * 24 / 25 - len(self.featurelist[i])) - 2,
+                        int(maxx * 24 / 25 - len(self.featurelist[i])) - 4,
                         self.featurelist[i],
                         curses.A_REVERSE,
                     )
@@ -432,7 +435,7 @@ class tree:
         if inputfeature == 0:
             self.youtubedisplay = True
         if inputfeature == 1:
-            self.playlist = Playlist("https://www.youtube.com/playlist?list=PL6fhs6TSspZvN45CPJApnMYVsWhkt55h7")
+            self.playlist = Playlist("https://www.youtube.com/playlist?list=PLOzDu-MXXLliO9fBNZOQTBDddoA3FzZUo")
             self.lofiradio()
 
     def loading(self, stdscr, maxx):
@@ -516,6 +519,10 @@ class tree:
             self.notifyendtime = int(time.time()) + 5
             self.isnotify = True
             self.notifystring = "ERROR GETTING AUDIO, PLEASE TRY AGAIN"
+            for file in list(_ for _ in QOUTE_FOLDER.glob("*.ogg")):
+                os.remove(file)
+            for file in list(_ for _ in QOUTE_FOLDER.glob("*.webm")):
+                os.remove(file)
             exit()
 
         self.downloaddisplay = False
@@ -693,6 +700,10 @@ def main():
                         treedata = open(RES_FOLDER / "treedata", "wb")
                         pickle.dump(tree1.age, treedata, protocol=None)
                         treedata.close()
+                        for file in list(_ for _ in QOUTE_FOLDER.glob("*.ogg")):
+                            os.remove(file)
+                        for file in list(_ for _ in QOUTE_FOLDER.glob("*.webm")):
+                            os.remove(file)
                         exit()
 
                 while tree1.isbrake:
@@ -716,6 +727,10 @@ def main():
                         treedata = open(RES_FOLDER / "treedata", "wb")
                         pickle.dump(tree1.age, treedata, protocol=None)
                         treedata.close()
+                        for file in list(_ for _ in QOUTE_FOLDER.glob("*.ogg")):
+                            os.remove(file)
+                        for file in list(_ for _ in QOUTE_FOLDER.glob("*.webm")):
+                            os.remove(file)
                         exit()
 
                 time.sleep(0.01)
