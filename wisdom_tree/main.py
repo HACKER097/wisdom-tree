@@ -554,7 +554,7 @@ class tree:
         self.notifystring = "Playing: " + str(song).split("/")[-1].split(".webm.ogg")[0]
 
     def getlofisong(self): 
-        # some links dont work, usre recurtion to find a link which works
+        # some links dont work, use recursion to find a link which works
 
         try:
 
