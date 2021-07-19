@@ -252,7 +252,7 @@ class tree:
         self.timerstart = mixer.Sound(str(RES_FOLDER / "timerstart.wav"))
         self.alarm = mixer.Sound(str(RES_FOLDER / "alarm.wav"))
         self.istimer = False
-        self.isbrake = False
+        self.isbreak = False
         self.breakover = False
         self.timerhidetime = 0
         self.musichidetime = 0
@@ -415,7 +415,7 @@ class tree:
             mixer.music.pause()
             self.breakendtime = int(time.time()) + self.breaktime
             self.istimer = False
-            self.isbrake = True
+            self.isbreak = True
 
     def breakdisplay(self, maxx, maxy):
         self.secondsleft = int(self.breakendtime) - int(time.time())
@@ -431,7 +431,7 @@ class tree:
 
         if self.secondsleft == 0:
             mixer.music.unpause()
-            self.isbrake = False
+            self.isbreak = False
             self.breakover = True
             self.alarm.play()
 
@@ -788,7 +788,7 @@ def main():
                             os.remove(file)
                         exit()
 
-                while tree1.isbrake:
+                while tree1.isbreak:
                     stdscr.erase()
                     stdscr.addstr(
                         int(maxy * 3 / 5),
@@ -801,7 +801,7 @@ def main():
                     key = stdscr.getch()
 
                     if key == ord(" "):
-                        tree1.isbrake = False
+                        tree1.isbreak = False
                         mixer.music.unpause()
                         stdscr.refresh()
 
