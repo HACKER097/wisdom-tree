@@ -553,42 +553,63 @@ class tree:
         self.isnotify = True
         self.notifystring = "Playing: " + str(song).split("/")[-1].split(".webm.ogg")[0]
 
-    def getlofisong(self): # some links dont work, usre recurtion to find a link which works
-        song = GetSong(self.playlist[random.randrange(0, len(self.playlist))])
+    def getlofisong(self): 
+        # some links dont work, usre recurtion to find a link which works
 
-        attempts = 3
+        try:
 
-        if song == "WRONG LINK ERROR":
-            if attempts == 0:
-                song = "DOWNLOAD ERROR"
-            else:
-                attempts -= 1
-                try:
+            song = GetSong(self.playlist[random.randrange(0, len(self.playlist))])
+
+            if song == "WRONG LINK ERROR": # try 3 times to get link, or its a download error, porbably a better way to do this
+                song = GetSong(self.playlist[random.randrange(0, len(self.playlist))])
+                if song == "WRONG LINK ERROR":
                     song = GetSong(self.playlist[random.randrange(0, len(self.playlist))])
-                except:
-                    pass
+                    if song == "WRONG LINK ERROR":
+                        song = GetSong(self.playlist[random.randrange(0, len(self.playlist))])
+                        if song == "WRONG LINK ERROR":
+                            song = "DOWNLOAD ERROR"
 
-        if song == "DOWNLOAD ERROR":
+
+
+
+            if song == "DOWNLOAD ERROR":
+
+                self.isloading = False
+
+                self.notifyendtime = int(time.time()) + 10
+                self.isnotify = True
+                self.notifystring = "UNABLE TO CONNECT"
+                self.radiomode = False
+                for file in list(_ for _ in QOUTE_FOLDER.glob("*.ogg")):
+                    os.remove(file)
+                for file in list(_ for _ in QOUTE_FOLDER.glob("*.webm")):
+                    os.remove(file)
+                return "ERROR"
+
+            if song == "CONVERT ERROR":
+
+                self.isloading = False
+
+                self.notifyendtime = int(time.time()) + 10
+                self.isnotify = True
+                self.notifystring = "CONVERT ERROR, IS FFMPEG INSTALLED?"
+                self.radiomode = False
+                for file in list(_ for _ in QOUTE_FOLDER.glob("*.ogg")):
+                    os.remove(file)
+                for file in list(_ for _ in QOUTE_FOLDER.glob("*.webm")):
+                    os.remove(file)
+                return "ERROR"
+          
+
+            return song
+
+        except:
 
             self.isloading = False
 
             self.notifyendtime = int(time.time()) + 10
             self.isnotify = True
-            self.notifystring = "UNABLE TO CONNECT"
-            self.radiomode = False
-            for file in list(_ for _ in QOUTE_FOLDER.glob("*.ogg")):
-                os.remove(file)
-            for file in list(_ for _ in QOUTE_FOLDER.glob("*.webm")):
-                os.remove(file)
-            exit()
-
-        if song == "CONVERT ERROR":
-
-            self.isloading = False
-
-            self.notifyendtime = int(time.time()) + 10
-            self.isnotify = True
-            self.notifystring = "CONVERT ERROR, IS FFMPEG INSTALLED?"
+            self.notifystring = "UNABLE TO CONNECT, PLEASE CHECK INTERNET CONNECTION"
             self.radiomode = False
             for file in list(_ for _ in QOUTE_FOLDER.glob("*.ogg")):
                 os.remove(file)
@@ -596,8 +617,6 @@ class tree:
                 os.remove(file)
             exit()
       
-
-        return song
 
     def lofiradio(self):
          #lofi playlist from youtube
@@ -615,6 +634,9 @@ class tree:
 
         if not hasattr(self, "lofisong"):
             self.lofisong = self.getlofisong()
+
+        if self.lofisong == "ERROR":
+            exit()
 
         mixer.music.load(self.lofisong)
         mixer.music.play()
@@ -735,12 +757,6 @@ def main():
                     tree1.loading(stdscr, maxx)
 
                 tree1.notify(stdscr, maxy, maxx)
-
-                try:
-                    stdscr.addstr(0,0,tree1.lofisong)
-                except:
-                    pass
-
 
                 mixer.music.set_volume(music_volume)
 
