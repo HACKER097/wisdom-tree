@@ -177,7 +177,6 @@ def key_events(stdscr, tree1):
         tree1.pausetime = time.time()
 
     if key == ord("m"):
-
         if mixer.music.get_busy():
             mixer.music.pause()
         else:
@@ -273,9 +272,9 @@ class tree:
 
     def display(self, maxx, maxy, seconds):
         if self.age >= 1 and self.age < 5:
-            self.artfile = str(RES_FOLDER/ "p1.txt")
+            self.artfile = str(RES_FOLDER/"p1.txt")
         if self.age >= 5 and self.age < 10:
-            self.artfile = str(RES_FOLDER/ "p2.txt")
+            self.artfile = str(RES_FOLDER/"p2.txt")
         if self.age >= 10 and self.age < 20:
             self.artfile = str(RES_FOLDER/"p3.txt")
         if self.age >= 20 and self.age < 30:
@@ -671,7 +670,7 @@ def main():
     curses.init_pair(1, 113, -1)  # passive selected text inner, outer
     curses.init_pair(2, 85, -1)  # timer color inner, outer
     curses.init_pair(3, 3, -1)  # active selected inner, outer
-    curses.init_pair(4, 51, -1)  # border coloer inner,outer
+    curses.init_pair(4, 51, -1)  # border color inner, outer
     curses.init_pair(5, 15, -1)
     curses.init_pair(6, 1, -1)
     curses.init_pair(7, curses.COLOR_YELLOW, -1)
