@@ -14,9 +14,9 @@ import threading
 from pydub import AudioSegment
 
 RES_FOLDER = Path(__file__).parent / "res"
-QOUTE_FOLDER = Path(__file__).parent
-QOUTE_FILE_NAME = "qts.txt"
-QOUTE_FILE = QOUTE_FOLDER / QOUTE_FILE_NAME
+QUOTE_FOLDER = Path(__file__).parent
+QUOTE_FILE_NAME = "qts.txt"
+QUOTE_FILE = QUOTE_FOLDER / QUOTE_FILE_NAME
 
 TIMER_WORK = (20 * 60, 20 * 60, 40 * 60, 50 * 60)
 TIMER_BREAK = (20 * 60, 10 * 60, 20 * 60, 10 * 60)
@@ -89,7 +89,7 @@ def getrandomline(file):  # returns random quote
 
 
 def getqt():  # returns random quote
-    return getrandomline(QOUTE_FILE)
+    return getrandomline(QUOTE_FILE)
 
 
 def printart(
@@ -138,9 +138,9 @@ def key_events(stdscr, tree1):
         treedata = open(RES_FOLDER / "treedata", "wb")
         pickle.dump(tree1.age, treedata, protocol=None)
         treedata.close()
-        for file in list(_ for _ in QOUTE_FOLDER.glob("*.ogg")):
+        for file in list(_ for _ in QUOTE_FOLDER.glob("*.ogg")):
             os.remove(file)
-        for file in list(_ for _ in QOUTE_FOLDER.glob("*.webm")):
+        for file in list(_ for _ in QUOTE_FOLDER.glob("*.webm")):
             os.remove(file)
         exit()
 
@@ -540,9 +540,9 @@ class tree:
             self.notifyendtime = int(time.time()) + 5
             self.isnotify = True
             self.notifystring = "ERROR GETTING AUDIO, PLEASE TRY AGAIN"
-            for file in list(_ for _ in QOUTE_FOLDER.glob("*.ogg")):
+            for file in list(_ for _ in QUOTE_FOLDER.glob("*.ogg")):
                 os.remove(file)
-            for file in list(_ for _ in QOUTE_FOLDER.glob("*.webm")):
+            for file in list(_ for _ in QUOTE_FOLDER.glob("*.webm")):
                 os.remove(file)
             exit()
 
@@ -580,9 +580,9 @@ class tree:
                 self.isnotify = True
                 self.notifystring = "UNABLE TO CONNECT"
                 self.radiomode = False
-                for file in list(_ for _ in QOUTE_FOLDER.glob("*.ogg")):
+                for file in list(_ for _ in QUOTE_FOLDER.glob("*.ogg")):
                     os.remove(file)
-                for file in list(_ for _ in QOUTE_FOLDER.glob("*.webm")):
+                for file in list(_ for _ in QUOTE_FOLDER.glob("*.webm")):
                     os.remove(file)
                 return "ERROR"
 
@@ -594,9 +594,9 @@ class tree:
                 self.isnotify = True
                 self.notifystring = "CONVERT ERROR, IS FFMPEG INSTALLED?"
                 self.radiomode = False
-                for file in list(_ for _ in QOUTE_FOLDER.glob("*.ogg")):
+                for file in list(_ for _ in QUOTE_FOLDER.glob("*.ogg")):
                     os.remove(file)
-                for file in list(_ for _ in QOUTE_FOLDER.glob("*.webm")):
+                for file in list(_ for _ in QUOTE_FOLDER.glob("*.webm")):
                     os.remove(file)
                 return "ERROR"
           
@@ -611,9 +611,9 @@ class tree:
             self.isnotify = True
             self.notifystring = "UNABLE TO CONNECT, PLEASE CHECK INTERNET CONNECTION"
             self.radiomode = False
-            for file in list(_ for _ in QOUTE_FOLDER.glob("*.ogg")):
+            for file in list(_ for _ in QUOTE_FOLDER.glob("*.ogg")):
                 os.remove(file)
-            for file in list(_ for _ in QOUTE_FOLDER.glob("*.webm")):
+            for file in list(_ for _ in QUOTE_FOLDER.glob("*.webm")):
                 os.remove(file)
             exit()
       
@@ -782,9 +782,9 @@ def main():
                         treedata = open(RES_FOLDER / "treedata", "wb")
                         pickle.dump(tree1.age, treedata, protocol=None)
                         treedata.close()
-                        for file in list(_ for _ in QOUTE_FOLDER.glob("*.ogg")):
+                        for file in list(_ for _ in QUOTE_FOLDER.glob("*.ogg")):
                             os.remove(file)
-                        for file in list(_ for _ in QOUTE_FOLDER.glob("*.webm")):
+                        for file in list(_ for _ in QUOTE_FOLDER.glob("*.webm")):
                             os.remove(file)
                         exit()
 
@@ -809,9 +809,9 @@ def main():
                         treedata = open(RES_FOLDER / "treedata", "wb")
                         pickle.dump(tree1.age, treedata, protocol=None)
                         treedata.close()
-                        for file in list(_ for _ in QOUTE_FOLDER.glob("*.ogg")):
+                        for file in list(_ for _ in QUOTE_FOLDER.glob("*.ogg")):
                             os.remove(file)
-                        for file in list(_ for _ in QOUTE_FOLDER.glob("*.webm")):
+                        for file in list(_ for _ in QUOTE_FOLDER.glob("*.webm")):
                             os.remove(file)
                         exit()
 
@@ -846,10 +846,10 @@ def main():
 
 def run_app():
     """A method to run the app"""
-    global QOUTE_FILE
-    config_file = Path(get_user_config_directory()) / "wisdom-tree" / QOUTE_FILE_NAME
+    global QUOTE_FILE
+    config_file = Path(get_user_config_directory()) / "wisdom-tree" / QUOTE_FILE_NAME
     if config_file.exists():
-        QOUTE_FILE = config_file
+        QUOTE_FILE = config_file
     mixer.init()
     main()
 
