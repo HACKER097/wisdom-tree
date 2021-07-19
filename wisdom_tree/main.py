@@ -335,7 +335,7 @@ class tree:
     def notify(self, stdscr, maxy, maxx):
         if self.isnotify and time.time() <= self.notifyendtime:
             curses.textpad.rectangle(stdscr, 0,0,2, maxx-1)
-            stdscr.addstr(1,1, self.notifystring[:maxx-3-3] + "...", curses.A_BOLD)
+            stdscr.addstr(1,1, self.notifystring[:maxx-3], curses.A_BOLD)
             self.downloaddisplay = False
 
     def menudisplay(self, stdscr, maxy, maxx):
