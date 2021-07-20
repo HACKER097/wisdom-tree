@@ -39,7 +39,7 @@ or
 
 - From the github repository (root):
 
-`python3 wisdome_tree/main.py`
+`python3 wisdom_tree/main.py`
 
 *note the underscore*
 
