@@ -107,7 +107,7 @@ def printart(
             )
 
 
-def key_events(stdscr, tree1):
+def key_events(stdscr, tree1, maxx):
     key = stdscr.getch()
 
     if key in (curses.KEY_UP, ord("j")):
@@ -187,6 +187,23 @@ def key_events(stdscr, tree1):
 
     if not tree1.isloading and key == ord("n"):
         tree1.lofiradio()
+
+    if key == ord("]"):
+        mixer.music.set_volume(mixer.music.get_volume()+0.02)
+        tree1.notifyendtime = int(time.time()) + 2
+        tree1.isnotify = True
+        volume = str(round(mixer.music.get_volume()*100)) + "%"
+        tree1.notifystring = " "*round(maxx*mixer.music.get_volume()-len(volume)-2) + volume
+        tree1.invert = True
+
+    if key == ord("["):
+        mixer.music.set_volume(mixer.music.get_volume()-0.02)
+        tree1.notifyendtime = int(time.time()) + 2
+        tree1.isnotify = True
+        volume = str(round(mixer.music.get_volume()*100)) + "%"
+        tree1.notifystring = " "*round(maxx*mixer.music.get_volume()-len(volume)-2) + volume
+        tree1.invert = True
+
 
 def GetSong(link):
 
@@ -268,7 +285,9 @@ class tree:
         self.playlist = Playlist("https://www.youtube.com/playlist?list=PL6fhs6TSspZvN45CPJApnMYVsWhkt55h7")
         self.radiomode = False
         self.isloading = False
+        self.invert = False
         random.seed()
+
 
     def display(self, maxx, maxy, seconds):
         if self.age >= 1 and self.age < 5:
@@ -334,8 +353,12 @@ class tree:
     def notify(self, stdscr, maxy, maxx):
         if self.isnotify and time.time() <= self.notifyendtime:
             curses.textpad.rectangle(stdscr, 0,0,2, maxx-1)
-            stdscr.addstr(1,1, self.notifystring[:maxx-3], curses.A_BOLD)
+            if self.invert:
+                stdscr.addstr(1,1, self.notifystring[:maxx-2], curses.A_BOLD | curses.A_REVERSE)
+            else:
+                stdscr.addstr(1,1, self.notifystring[:maxx-2], curses.A_BOLD)
             self.downloaddisplay = False
+            #self.invert = False
 
     def menudisplay(self, stdscr, maxy, maxx):
         if self.showtimer:
@@ -735,10 +758,6 @@ def main():
                         curses.A_BOLD,
                     )
 
-                music_volume += 0.001  # fade in music
-                if music_volume > music_volume_max:
-                    music_volume = music_volume_max
-
                 tree1.display(maxx, maxy, seconds)
 
                 tree1.seasons(maxx, maxy, seconds)
@@ -757,9 +776,7 @@ def main():
 
                 tree1.notify(stdscr, maxy, maxx)
 
-                mixer.music.set_volume(music_volume)
-
-                key_events(stdscr, tree1)
+                key_events(stdscr, tree1, maxx)
 
                 while tree1.pause:
                     stdscr.erase()
