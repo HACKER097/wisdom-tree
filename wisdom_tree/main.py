@@ -14,9 +14,9 @@ import threading
 from pydub import AudioSegment
 
 RES_FOLDER = Path(__file__).parent / "res"
-QOUTE_FOLDER = Path(__file__).parent
-QOUTE_FILE_NAME = "qts.txt"
-QOUTE_FILE = QOUTE_FOLDER / QOUTE_FILE_NAME
+QUOTE_FOLDER = Path(__file__).parent
+QUOTE_FILE_NAME = "qts.txt"
+QUOTE_FILE = QUOTE_FOLDER / QUOTE_FILE_NAME
 
 TIMER_WORK = (20 * 60, 20 * 60, 40 * 60, 50 * 60)
 TIMER_BREAK = (20 * 60, 10 * 60, 20 * 60, 10 * 60)
@@ -89,7 +89,7 @@ def getrandomline(file):  # returns random quote
 
 
 def getqt():  # returns random quote
-    return getrandomline(QOUTE_FILE)
+    return getrandomline(QUOTE_FILE)
 
 
 def printart(
@@ -138,9 +138,9 @@ def key_events(stdscr, tree1):
         treedata = open(RES_FOLDER / "treedata", "wb")
         pickle.dump(tree1.age, treedata, protocol=None)
         treedata.close()
-        for file in list(_ for _ in QOUTE_FOLDER.glob("*.ogg")):
+        for file in list(_ for _ in QUOTE_FOLDER.glob("*.ogg")):
             os.remove(file)
-        for file in list(_ for _ in QOUTE_FOLDER.glob("*.webm")):
+        for file in list(_ for _ in QUOTE_FOLDER.glob("*.webm")):
             os.remove(file)
         exit()
 
@@ -177,7 +177,6 @@ def key_events(stdscr, tree1):
         tree1.pausetime = time.time()
 
     if key == ord("m"):
-
         if mixer.music.get_busy():
             mixer.music.pause()
         else:
@@ -252,7 +251,7 @@ class tree:
         self.timerstart = mixer.Sound(str(RES_FOLDER / "timerstart.wav"))
         self.alarm = mixer.Sound(str(RES_FOLDER / "alarm.wav"))
         self.istimer = False
-        self.isbrake = False
+        self.isbreak = False
         self.breakover = False
         self.timerhidetime = 0
         self.musichidetime = 0
@@ -273,9 +272,9 @@ class tree:
 
     def display(self, maxx, maxy, seconds):
         if self.age >= 1 and self.age < 5:
-            self.artfile = str(RES_FOLDER/ "p1.txt")
+            self.artfile = str(RES_FOLDER/"p1.txt")
         if self.age >= 5 and self.age < 10:
-            self.artfile = str(RES_FOLDER/ "p2.txt")
+            self.artfile = str(RES_FOLDER/"p2.txt")
         if self.age >= 10 and self.age < 20:
             self.artfile = str(RES_FOLDER/"p3.txt")
         if self.age >= 20 and self.age < 30:
@@ -415,7 +414,7 @@ class tree:
             mixer.music.pause()
             self.breakendtime = int(time.time()) + self.breaktime
             self.istimer = False
-            self.isbrake = True
+            self.isbreak = True
 
     def breakdisplay(self, maxx, maxy):
         self.secondsleft = int(self.breakendtime) - int(time.time())
@@ -431,7 +430,7 @@ class tree:
 
         if self.secondsleft == 0:
             mixer.music.unpause()
-            self.isbrake = False
+            self.isbreak = False
             self.breakover = True
             self.alarm.play()
 
@@ -540,9 +539,9 @@ class tree:
             self.notifyendtime = int(time.time()) + 5
             self.isnotify = True
             self.notifystring = "ERROR GETTING AUDIO, PLEASE TRY AGAIN"
-            for file in list(_ for _ in QOUTE_FOLDER.glob("*.ogg")):
+            for file in list(_ for _ in QUOTE_FOLDER.glob("*.ogg")):
                 os.remove(file)
-            for file in list(_ for _ in QOUTE_FOLDER.glob("*.webm")):
+            for file in list(_ for _ in QUOTE_FOLDER.glob("*.webm")):
                 os.remove(file)
             exit()
 
@@ -554,7 +553,7 @@ class tree:
         self.notifystring = "Playing: " + str(song).split("/")[-1].split(".webm.ogg")[0]
 
     def getlofisong(self): 
-        # some links dont work, usre recurtion to find a link which works
+        # some links dont work, use recursion to find a link which works
 
         try:
 
@@ -580,9 +579,9 @@ class tree:
                 self.isnotify = True
                 self.notifystring = "UNABLE TO CONNECT"
                 self.radiomode = False
-                for file in list(_ for _ in QOUTE_FOLDER.glob("*.ogg")):
+                for file in list(_ for _ in QUOTE_FOLDER.glob("*.ogg")):
                     os.remove(file)
-                for file in list(_ for _ in QOUTE_FOLDER.glob("*.webm")):
+                for file in list(_ for _ in QUOTE_FOLDER.glob("*.webm")):
                     os.remove(file)
                 return "ERROR"
 
@@ -594,9 +593,9 @@ class tree:
                 self.isnotify = True
                 self.notifystring = "CONVERT ERROR, IS FFMPEG INSTALLED?"
                 self.radiomode = False
-                for file in list(_ for _ in QOUTE_FOLDER.glob("*.ogg")):
+                for file in list(_ for _ in QUOTE_FOLDER.glob("*.ogg")):
                     os.remove(file)
-                for file in list(_ for _ in QOUTE_FOLDER.glob("*.webm")):
+                for file in list(_ for _ in QUOTE_FOLDER.glob("*.webm")):
                     os.remove(file)
                 return "ERROR"
           
@@ -611,9 +610,9 @@ class tree:
             self.isnotify = True
             self.notifystring = "UNABLE TO CONNECT, PLEASE CHECK INTERNET CONNECTION"
             self.radiomode = False
-            for file in list(_ for _ in QOUTE_FOLDER.glob("*.ogg")):
+            for file in list(_ for _ in QUOTE_FOLDER.glob("*.ogg")):
                 os.remove(file)
-            for file in list(_ for _ in QOUTE_FOLDER.glob("*.webm")):
+            for file in list(_ for _ in QUOTE_FOLDER.glob("*.webm")):
                 os.remove(file)
             exit()
       
@@ -671,7 +670,7 @@ def main():
     curses.init_pair(1, 113, -1)  # passive selected text inner, outer
     curses.init_pair(2, 85, -1)  # timer color inner, outer
     curses.init_pair(3, 3, -1)  # active selected inner, outer
-    curses.init_pair(4, 51, -1)  # border coloer inner,outer
+    curses.init_pair(4, 51, -1)  # border color inner, outer
     curses.init_pair(5, 15, -1)
     curses.init_pair(6, 1, -1)
     curses.init_pair(7, curses.COLOR_YELLOW, -1)
@@ -782,13 +781,13 @@ def main():
                         treedata = open(RES_FOLDER / "treedata", "wb")
                         pickle.dump(tree1.age, treedata, protocol=None)
                         treedata.close()
-                        for file in list(_ for _ in QOUTE_FOLDER.glob("*.ogg")):
+                        for file in list(_ for _ in QUOTE_FOLDER.glob("*.ogg")):
                             os.remove(file)
-                        for file in list(_ for _ in QOUTE_FOLDER.glob("*.webm")):
+                        for file in list(_ for _ in QUOTE_FOLDER.glob("*.webm")):
                             os.remove(file)
                         exit()
 
-                while tree1.isbrake:
+                while tree1.isbreak:
                     stdscr.erase()
                     stdscr.addstr(
                         int(maxy * 3 / 5),
@@ -801,7 +800,7 @@ def main():
                     key = stdscr.getch()
 
                     if key == ord(" "):
-                        tree1.isbrake = False
+                        tree1.isbreak = False
                         mixer.music.unpause()
                         stdscr.refresh()
 
@@ -809,9 +808,9 @@ def main():
                         treedata = open(RES_FOLDER / "treedata", "wb")
                         pickle.dump(tree1.age, treedata, protocol=None)
                         treedata.close()
-                        for file in list(_ for _ in QOUTE_FOLDER.glob("*.ogg")):
+                        for file in list(_ for _ in QUOTE_FOLDER.glob("*.ogg")):
                             os.remove(file)
-                        for file in list(_ for _ in QOUTE_FOLDER.glob("*.webm")):
+                        for file in list(_ for _ in QUOTE_FOLDER.glob("*.webm")):
                             os.remove(file)
                         exit()
 
@@ -846,10 +845,10 @@ def main():
 
 def run_app():
     """A method to run the app"""
-    global QOUTE_FILE
-    config_file = Path(get_user_config_directory()) / "wisdom-tree" / QOUTE_FILE_NAME
+    global QUOTE_FILE
+    config_file = Path(get_user_config_directory()) / "wisdom-tree" / QUOTE_FILE_NAME
     if config_file.exists():
-        QOUTE_FILE = config_file
+        QUOTE_FILE = config_file
     mixer.init()
     main()
 
