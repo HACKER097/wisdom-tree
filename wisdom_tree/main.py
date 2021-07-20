@@ -13,6 +13,10 @@ import urllib.request
 import threading
 from pydub import AudioSegment
 
+if not os.name == "posix" and not ctypes.windll.shell32.IsUserAnAdmin() != 0:
+    print("PLEASE RUN AS ADMINISTRATOR")
+    exit()
+
 RES_FOLDER = Path(__file__).parent / "res"
 QUOTE_FOLDER = Path(__file__).parent
 QUOTE_FILE_NAME = "qts.txt"
