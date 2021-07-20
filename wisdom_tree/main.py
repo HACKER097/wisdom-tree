@@ -574,6 +574,7 @@ class tree:
         self.notifyendtime = int(time.time()) + 10
         self.isnotify = True
         self.notifystring = "Playing: " + str(song).split("/")[-1].split(".webm.ogg")[0]
+        self.invert = False
 
     def getlofisong(self): 
         # some links dont work, use recursion to find a link which works
@@ -601,6 +602,7 @@ class tree:
                 self.notifyendtime = int(time.time()) + 10
                 self.isnotify = True
                 self.notifystring = "UNABLE TO CONNECT"
+                self.invert = False
                 self.radiomode = False
                 for file in list(_ for _ in QUOTE_FOLDER.glob("*.ogg")):
                     os.remove(file)
@@ -615,6 +617,7 @@ class tree:
                 self.notifyendtime = int(time.time()) + 10
                 self.isnotify = True
                 self.notifystring = "CONVERT ERROR, IS FFMPEG INSTALLED?"
+                self.invert = False
                 self.radiomode = False
                 for file in list(_ for _ in QUOTE_FOLDER.glob("*.ogg")):
                     os.remove(file)
@@ -632,6 +635,7 @@ class tree:
             self.notifyendtime = int(time.time()) + 10
             self.isnotify = True
             self.notifystring = "UNABLE TO CONNECT, PLEASE CHECK INTERNET CONNECTION"
+            self.invert = False
             self.radiomode = False
             for file in list(_ for _ in QUOTE_FOLDER.glob("*.ogg")):
                 os.remove(file)
@@ -668,6 +672,7 @@ class tree:
         self.notifyendtime = int(time.time()) + 10
         self.isnotify = True
         self.notifystring = "Playing: " + str(self.lofisong).split("/")[-1].split(".webm.ogg")[0]
+        self.invert = False
 
         os.remove(self.lofisong)
         self.lofisong = self.getlofisong()
