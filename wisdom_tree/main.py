@@ -12,6 +12,7 @@ import re
 import urllib.request
 import threading
 from pydub import AudioSegment
+import ctypes
 
 if not os.name == "posix" and not ctypes.windll.shell32.IsUserAnAdmin() != 0:
     print("PLEASE RUN AS ADMINISTRATOR")
