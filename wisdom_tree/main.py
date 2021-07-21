@@ -291,6 +291,7 @@ class tree:
         self.radiomode = False
         self.isloading = False
         self.invert = False
+        self.breakendtext = "BREAK IS OVER, PRESS ENTER TO START NEW TIMER"
         random.seed()
 
 
@@ -430,9 +431,9 @@ class tree:
             self.stdscr.addstr(
                 int(maxy * 10 / 11),
                 int(
-                    maxx / 2 - len("BREAK IS OVER, PRESS ENTER TO START NEW TIMER") / 2
+                    maxx / 2 - len(self.breakendtext) / 2
                 ),
-                "BREAK IS OVER, PRESS ENTER TO START NEW TIMER",
+                self.breakendtext,
                 curses.A_BLINK | curses.A_BOLD,
             )
 
@@ -468,10 +469,12 @@ class tree:
 
     def starttimer(self, inputtime):
         if inputtime >= 4:
+            self.breakendtext = "TIMER IS OVER, PRESS ENTER"
             self.worktime = 0
             self.breaktime = 0
             self.istimer == False
         else:
+            self.breakendtext = "BREAK IS OVER, PRESS ENTER TO START NEW TIMER"
             self.istimer = True
             self.worktime = TIMER_WORK[inputtime]
             self.breaktime = TIMER_BREAK[inputtime]
@@ -700,13 +703,25 @@ def main():
 
     curses.use_default_colors()
 
-    curses.init_pair(1, 113, -1)  # passive selected text inner, outer
-    curses.init_pair(2, 85, -1)  # timer color inner, outer
-    curses.init_pair(3, 3, -1)  # active selected inner, outer
-    curses.init_pair(4, 51, -1)  # border color inner, outer
-    curses.init_pair(5, 15, -1)
-    curses.init_pair(6, 1, -1)
-    curses.init_pair(7, curses.COLOR_YELLOW, -1)
+    try:
+
+        curses.init_pair(1, 113, -1)  # passive selected text inner, outer
+        curses.init_pair(2, 85, -1)  # timer color inner, outer
+        curses.init_pair(3, 3, -1)  # active selected inner, outer
+        curses.init_pair(4, 51, -1)  # border color inner, outer
+        curses.init_pair(5, 15, -1)
+        curses.init_pair(6, 1, -1)
+        curses.init_pair(7, curses.COLOR_YELLOW, -1)
+
+    except:
+        curses.init_pair(1, 1, 0)  # passive selected text inner, outer
+        curses.init_pair(2, 1, 0)  # timer color inner, outer
+        curses.init_pair(3, 1, 0)  # active selected inner, outer
+        curses.init_pair(4, 1, 0)  # border color inner, outer
+        curses.init_pair(5, 1, 0)
+        curses.init_pair(6, 1, 0)
+        curses.init_pair(7, 1, 0)
+
 
     tree_grow = mixer.Sound(RES_FOLDER/ "growth.waw")
 
