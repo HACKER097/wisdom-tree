@@ -115,12 +115,12 @@ def printart(
 def key_events(stdscr, tree1, maxx):
     key = stdscr.getch()
 
-    if key in (curses.KEY_UP, ord("j")):
+    if key in (curses.KEY_UP, ord("k")):
         tree1.showtimer = True
         tree1.selectedtimer -= 1
         tree1.timerhidetime = int(time.time()) + 5
 
-    if key in (curses.KEY_DOWN, ord("k")):
+    if key in (curses.KEY_DOWN, ord("j")):
         tree1.showtimer = True
         tree1.selectedtimer += 1
         tree1.timerhidetime = int(time.time()) + 5
