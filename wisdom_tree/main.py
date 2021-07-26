@@ -476,7 +476,7 @@ class tree:
         else:
             self.breakendtext = "BREAK IS OVER, PRESS ENTER TO START NEW TIMER"
             self.istimer = True
-            self.worktime = TIMER_WORK[inputtime]
+            self.worktime = 1
             self.breaktime = TIMER_BREAK[inputtime]
 
         self.workendtime = int(time.time()) + self.worktime
@@ -507,7 +507,7 @@ class tree:
             "[==  ]",
             "[=   ]"
         ]
-            self.spinnerstate+=0.1
+            self.spinnerstate+=0.5
             if self.spinnerstate > len(spinner)-1:
                 self.spinnerstate = 0
             curses.textpad.rectangle(stdscr, 0,0,2, maxx-1)
@@ -727,7 +727,7 @@ def main():
 
     seconds = 1
     anilen = 1
-    anispeed = 0.2
+    anispeed = 1
 
     music_volume = 0
     music_volume_max = 1
@@ -738,12 +738,20 @@ def main():
     tree1 = tree(stdscr, 1)
     mixer.music.play(-1)
 
-    treedata_in = open(RES_FOLDER/ "treedata", "rb")
-    tree1.age = pickle.load(treedata_in)
+    try:
+
+        treedata_in = open(RES_FOLDER/ "treedata", "rb")
+        tree1.age = pickle.load(treedata_in)
+
+    except:
+
+        tree1.age = 1
 
 
     try:
         while run:
+
+            start = time.time()
 
             try:
                 stdscr.erase()
@@ -829,6 +837,8 @@ def main():
                             os.remove(file)
                         exit()
 
+                    time.sleep(0.1)
+
                 while tree1.isbreak:
                     stdscr.erase()
                     stdscr.addstr(
@@ -856,8 +866,12 @@ def main():
                             os.remove(file)
                         exit()
 
-                time.sleep(0.01)
-                seconds += 1
+                    time.sleep(0.1)
+
+                time.sleep(max(0.05 - (time.time() - start), 0))
+
+                #time.sleep(0.1)
+                seconds += 5
 
             except KeyboardInterrupt:
 
