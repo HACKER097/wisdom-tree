@@ -725,7 +725,7 @@ def main():
 
     tree_grow = mixer.Sound(RES_FOLDER/ "growth.waw")
 
-    seconds = 1
+    seconds = 0
     anilen = 1
     anispeed = 1
 
