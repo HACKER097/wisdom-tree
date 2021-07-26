@@ -476,7 +476,7 @@ class tree:
         else:
             self.breakendtext = "BREAK IS OVER, PRESS ENTER TO START NEW TIMER"
             self.istimer = True
-            self.worktime = 1
+            self.worktime = TIMER_WORK[inputtime]
             self.breaktime = TIMER_BREAK[inputtime]
 
         self.workendtime = int(time.time()) + self.worktime
