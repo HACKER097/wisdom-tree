@@ -83,9 +83,6 @@ setup(
     #
     # For a list of valid classifiers, see https://pypi.org/classifiers/
     classifiers=[  # Optional
-        'Environment :: Console',
-        'Environment :: Console :: Curses',
-
         # How mature is this project? Common values are
         #   3 - Alpha
         #   4 - Beta
@@ -93,12 +90,8 @@ setup(
         'Development Status :: 3 - Alpha',
 
         # Indicate who your project is intended for
-        'Intended Audience :: Education',
-        'Intended Audience :: End Users/Desktop',
-        'Natural Language :: English',
-        'Topic :: Education',
-        'Topic :: Utilities',
-        'Topic :: Terminals'
+        'Intended Audience :: Developers',
+        'Topic :: Software Development :: Build Tools',
 
         # Pick your license as you wish
         'License :: OSI Approved :: MIT License',
@@ -120,7 +113,7 @@ setup(
     # Note that this is a list of additional keywords, separated
     # by commas, to be used to assist searching for the distribution in a
     # larger catalog.
-    keywords='pomodoro, studying, lofi',  # Optional
+    keywords='sample, setuptools, development',  # Optional
 
     # When your source code is in a subdirectory under the project root, e.g.
     # `src/`, it is necessary to specify the `package_dir` argument.
