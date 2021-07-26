@@ -725,7 +725,7 @@ def main():
 
     tree_grow = mixer.Sound(RES_FOLDER/ "growth.waw")
 
-    seconds = 0
+    seconds = 5
     anilen = 1
     anispeed = 1
 
@@ -762,9 +762,7 @@ def main():
                 if anilen > 150:
                     anilen = 150
 
-                if (
-                    seconds % (100 * 60 * 10) == 0
-                ):  # show another quote every 5 min, and grow tree
+                if (seconds % (100 * 60 * 10) == 0):  # show another quote every 5 min, and grow tree
                     quote = getqt()
                     tree1.age += 1
                     anilen = 1
