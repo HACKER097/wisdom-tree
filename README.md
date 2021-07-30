@@ -109,7 +109,7 @@ All done here!
 
 # Tipping 
 
-Before you consider donating, please note that I am still a school student and code in my free time, donating **will not** help me work on wisdom-tree or my other projects faster. Your tip can end up on onlycoins at worse, or pay for my college tuition at best.
+Before you consider donating, please note that I am still a school student and code in my free time, donating **will not** help me work on wisdom-tree or my other projects faster. Your tip can end up on onlycoins at worst, or pay for my college tuition at best.
 
 
 
