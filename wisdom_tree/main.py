@@ -2,7 +2,6 @@ import os
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 import curses
 from curses import textpad
-from pygame import mixer
 import time
 import random
 import pickle
@@ -13,6 +12,7 @@ import urllib.request
 import threading
 from pydub import AudioSegment
 import ctypes
+import vlc
 
 if not os.name == "posix" and not ctypes.windll.shell32.IsUserAnAdmin() != 0:
     print("PLEASE RUN AS ADMINISTRATOR")
@@ -131,13 +131,15 @@ def key_events(stdscr, tree1, maxx):
                 tree1.starttimer(tree1.selectedtimer)
             else:
                 tree1.featureselect(tree1.selectedtimer)
-            tree1.timerstart.play()
+            timerstart = vlc.MediaPlayer(str(RES_FOLDER / "timerstart.wav"))
+            timerstart.play()
             tree1.showtimer = False
 
         if tree1.breakover:
             tree1.breakover = False
             tree1.starttimer(tree1.selectedtimer)
-            tree1.timerstart.play()
+            timerstart = vlc.MediaPlayer(str(RES_FOLDER / "timerstart.wav"))
+            timerstart.play()
 
     if key == ord("q"):
         treedata = open(RES_FOLDER / "treedata", "wb")
@@ -158,8 +160,9 @@ def key_events(stdscr, tree1, maxx):
             tree1.music_list_num += 1
             if tree1.music_list_num > len(tree1.music_list) - 1:
                 tree1.music_list_num = len(tree1.music_list) - 1
-            music = mixer.music.load(tree1.music_list[tree1.music_list_num])
-            mixer.music.play(-1)
+            tree1.media.stop()
+            tree1.media = vlc.MediaPlayer(tree1.music_list[tree1.music_list_num])
+            tree1.media.play()
             tree1.show_music = True
             tree1.musichidetime = int(time.time()) + 5
 
@@ -171,43 +174,47 @@ def key_events(stdscr, tree1, maxx):
             tree1.music_list_num -= 1
             if tree1.music_list_num < 0:
                 tree1.music_list_num = 0
-            music = mixer.music.load(tree1.music_list[tree1.music_list_num])
-            mixer.music.play(-1)
+            tree1.media.stop()
+            tree1.media = vlc.MediaPlayer(tree1.music_list[tree1.music_list_num])
+            tree1.media.play()
             tree1.show_music = True
             tree1.musichidetime = int(time.time()) + 5
 
     if key == ord(" "):
-        mixer.music.pause()
+        tree1.media.pause()
         tree1.pause = True
         tree1.pausetime = time.time()
 
     if key == ord("m"):
-        if mixer.music.get_busy():
-            mixer.music.pause()
+        if tree1.media.is_playing():
+            tree1.media.pause()
         else:
-            mixer.music.unpause()
-
-    if key == ord("r"):
-        mixer.music.play()
+            tree1.media.play()
 
     if not tree1.isloading and key == ord("n"):
+        tree1.media.stop()
         tree1.lofiradio()
 
     if key == ord("]"):
-        mixer.music.set_volume(mixer.music.get_volume()+0.02)
+        tree1.media.audio_set_volume(tree1.media.audio_get_volume()+1)
         tree1.notifyendtime = int(time.time()) + 2
         tree1.isnotify = True
-        volume = str(round(mixer.music.get_volume()*100)) + "%"
-        tree1.notifystring = " "*round(maxx*mixer.music.get_volume()-len(volume)-2) + volume
+        volume = str(round(tree1.media.audio_get_volume())) + "%"
+        tree1.notifystring = " "*round(maxx*(tree1.media.audio_get_volume()/100)-len(volume)-2) + volume
         tree1.invert = True
 
     if key == ord("["):
-        mixer.music.set_volume(mixer.music.get_volume()-0.02)
+        tree1.media.audio_set_volume(tree1.media.audio_get_volume()-1)
         tree1.notifyendtime = int(time.time()) + 2
         tree1.isnotify = True
-        volume = str(round(mixer.music.get_volume()*100)) + "%"
-        tree1.notifystring = " "*round(maxx*mixer.music.get_volume()-len(volume)-2) + volume
+        volume = str(round(tree1.media.audio_get_volume())) + "%"
+        tree1.notifystring = " "*round(maxx*(tree1.media.audio_get_volume()/100)-len(volume)-2) + volume
         tree1.invert = True
+
+
+    if tree1.media.audio_get_volume() > 100:
+        tree1.media.audio_set_volume(100)
+
 
 
 def GetSong(link):
@@ -254,7 +261,7 @@ class tree:
         self.show_music = False
         self.music_list = list(_ for _ in RES_FOLDER.glob("*.ogg"))
         self.music_list_num = 0
-        self.music = mixer.music.load(str(self.music_list[self.music_list_num]))
+        self.media = vlc.MediaPlayer(str(self.music_list[self.music_list_num]))
         self.pause = False
         self.showtimer = False
         self.timerlist = [
@@ -270,8 +277,6 @@ class tree:
         ]
         self.currentmenu = "timer"
         self.selectedtimer = 0
-        self.timerstart = mixer.Sound(str(RES_FOLDER / "timerstart.wav"))
-        self.alarm = mixer.Sound(str(RES_FOLDER / "alarm.wav"))
         self.istimer = False
         self.isbreak = False
         self.breakover = False
@@ -439,8 +444,9 @@ class tree:
 
     def breakstart(self):
         if self.istimer:
-            self.timerstart.play()
-            mixer.music.pause()
+            alarm = vlc.MediaPlayer(str(RES_FOLDER / "alarm.wav"))
+            alarm.play()
+            self.media.pause()
             self.breakendtime = int(time.time()) + self.breaktime
             self.istimer = False
             self.isbreak = True
@@ -458,10 +464,11 @@ class tree:
         )
 
         if self.secondsleft == 0:
-            mixer.music.unpause()
+            self.media.play()
             self.isbreak = False
             self.breakover = True
-            self.alarm.play()
+            alarm = vlc.MediaPlayer(str(RES_FOLDER / "alarm.wav"))
+            alarm.play()
 
     def timer(self):
         if self.istimer and int(time.time()) == int(self.workendtime):
@@ -559,21 +566,17 @@ class tree:
     def playyoutube(self, songinput):
 
         try:
-            song = GetSong(GetLinks(songinput))
+            yt = YouTube(GetLinks(songinput))
+            song = yt.streams.get_by_itag(251).url
 
-            mixer.music.load(song)
-            mixer.music.play()
+            self.media = vlc.MediaPlayer(song)
 
-            os.remove(song)
+            self.media.play()
 
         except:
             self.notifyendtime = int(time.time()) + 5
             self.isnotify = True
             self.notifystring = "ERROR GETTING AUDIO, PLEASE TRY AGAIN"
-            for file in list(_ for _ in QUOTE_FOLDER.glob("*.ogg")):
-                os.remove(file)
-            for file in list(_ for _ in QUOTE_FOLDER.glob("*.webm")):
-                os.remove(file)
             exit()
 
         self.downloaddisplay = False
@@ -581,60 +584,18 @@ class tree:
 
         self.notifyendtime = int(time.time()) + 10
         self.isnotify = True
-        self.notifystring = "Playing: " + str(song).split("/")[-1].split(".webm.ogg")[0]
+        self.notifystring = "Playing: " + yt.title
         self.invert = False
 
     def getlofisong(self): 
         # some links dont work, use recursion to find a link which works
 
         try:
+    
+            self.lofilink = random.choice(self.playlist.video_urls)
+            link = YouTube(self.lofilink).streams.get_by_itag(251).url
 
-            song = GetSong(self.playlist[random.randrange(0, len(self.playlist))])
-
-            if song == "WRONG LINK ERROR": # try 3 times to get link, or its a download error, porbably a better way to do this
-                song = GetSong(self.playlist[random.randrange(0, len(self.playlist))])
-                if song == "WRONG LINK ERROR":
-                    song = GetSong(self.playlist[random.randrange(0, len(self.playlist))])
-                    if song == "WRONG LINK ERROR":
-                        song = GetSong(self.playlist[random.randrange(0, len(self.playlist))])
-                        if song == "WRONG LINK ERROR":
-                            song = "DOWNLOAD ERROR"
-
-
-
-
-            if song == "DOWNLOAD ERROR":
-
-                self.isloading = False
-
-                self.notifyendtime = int(time.time()) + 10
-                self.isnotify = True
-                self.notifystring = "UNABLE TO CONNECT"
-                self.invert = False
-                self.radiomode = False
-                for file in list(_ for _ in QUOTE_FOLDER.glob("*.ogg")):
-                    os.remove(file)
-                for file in list(_ for _ in QUOTE_FOLDER.glob("*.webm")):
-                    os.remove(file)
-                return "ERROR"
-
-            if song == "CONVERT ERROR":
-
-                self.isloading = False
-
-                self.notifyendtime = int(time.time()) + 10
-                self.isnotify = True
-                self.notifystring = "CONVERT ERROR, IS FFMPEG INSTALLED?"
-                self.invert = False
-                self.radiomode = False
-                for file in list(_ for _ in QUOTE_FOLDER.glob("*.ogg")):
-                    os.remove(file)
-                for file in list(_ for _ in QUOTE_FOLDER.glob("*.webm")):
-                    os.remove(file)
-                return "ERROR"
-          
-
-            return song
+            return link
 
         except:
 
@@ -645,10 +606,6 @@ class tree:
             self.notifystring = "UNABLE TO CONNECT, PLEASE CHECK INTERNET CONNECTION"
             self.invert = False
             self.radiomode = False
-            for file in list(_ for _ in QUOTE_FOLDER.glob("*.ogg")):
-                os.remove(file)
-            for file in list(_ for _ in QUOTE_FOLDER.glob("*.webm")):
-                os.remove(file)
             exit()
       
 
@@ -672,17 +629,15 @@ class tree:
         if self.lofisong == "ERROR":
             exit()
 
-        mixer.music.load(self.lofisong)
-        mixer.music.play()
 
-        self.lofisonglen = mixer.Sound(self.lofisong).get_length()
+        self.media = vlc.MediaPlayer(self.lofisong)
+        self.media.play()
 
         self.notifyendtime = int(time.time()) + 10
         self.isnotify = True
-        self.notifystring = "Playing: " + str(self.lofisong).split("/")[-1].split(".webm.ogg")[0]
+        self.notifystring = "Playing: " + YouTube(self.lofilink).title
         self.invert = False
 
-        os.remove(self.lofisong)
         self.lofisong = self.getlofisong()
 
         self.isloading = False
@@ -723,7 +678,7 @@ def main():
         curses.init_pair(7, 1, 0)
 
 
-    tree_grow = mixer.Sound(RES_FOLDER/ "growth.waw")
+    tree_grow = vlc.MediaPlayer(RES_FOLDER/ "growth.waw")
 
     seconds = 5
     anilen = 1
@@ -736,7 +691,7 @@ def main():
     tree_grow.play()
 
     tree1 = tree(stdscr, 1)
-    mixer.music.play(-1)
+    tree1.media.play()
 
     try:
 
@@ -766,6 +721,7 @@ def main():
                     quote = getqt()
                     tree1.age += 1
                     anilen = 1
+                    tree_grow = vlc.MediaPlayer(RES_FOLDER/ "growth.waw")
                     tree_grow.play()
 
                 if tree1.musichidetime <= int(time.time()):
@@ -799,7 +755,7 @@ def main():
 
                 tree1.timer()
 
-                if not tree1.isloading and tree1.radiomode and mixer.music.get_pos() == -1:
+                if not tree1.isloading and tree1.radiomode and round(tree1.media.get_position()*100) == 100:
                     tree1.lofiradio()
 
                 if tree1.isloading:
@@ -820,7 +776,7 @@ def main():
                     key = stdscr.getch()
                     if key == ord(" "):
                         tree1.pause = False
-                        mixer.music.unpause()
+                        tree1.media.play()
                         stdscr.refresh()
                         if tree1.istimer:
                             tree1.workendtime += time.time() - tree1.pausetime
@@ -851,7 +807,7 @@ def main():
 
                     if key == ord(" "):
                         tree1.isbreak = False
-                        mixer.music.unpause()
+                        tree1.media.play()
                         stdscr.refresh()
 
                     if key == ord("q"):
@@ -903,7 +859,6 @@ def run_app():
     config_file = Path(get_user_config_directory()) / "wisdom-tree" / QUOTE_FILE_NAME
     if config_file.exists():
         QUOTE_FILE = config_file
-    mixer.init()
     main()
 
 
