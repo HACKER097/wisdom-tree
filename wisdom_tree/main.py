@@ -10,7 +10,6 @@ from pytube import YouTube, Playlist
 import re
 import urllib.request
 import threading
-from pydub import AudioSegment
 import ctypes
 import vlc
 
