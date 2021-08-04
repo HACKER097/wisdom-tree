@@ -1,3 +1,2 @@
-pygame
+python-vlc
 pytube
-pydub
