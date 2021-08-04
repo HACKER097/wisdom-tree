@@ -4,6 +4,8 @@ Wisdom Tree is a tui concentration app I am working on. Inspired by the wisdom t
 
 # Installation
 
+Wisdom-tree uses vlc to play music, please make sure vlc is installed. 
+
 Extra step for mac `brew install sdl2_mixer`
 
 Extra step for Windows `pip install windows-curses` or `pip3 install windows-curses`
