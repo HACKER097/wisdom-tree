@@ -192,7 +192,6 @@ def key_events(stdscr, tree1, maxx):
             tree1.media.play()
 
     if not tree1.isloading and key == ord("n"):
-        tree1.media.stop()
         tree1.lofiradio()
 
     if key == ord("]"):
@@ -611,6 +610,8 @@ class tree:
 
     def lofiradio(self):
          #lofi playlist from youtube
+
+        self.media.stop()
 
         self.isloading = True
         self.radiomode = True
