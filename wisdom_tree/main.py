@@ -180,15 +180,13 @@ def key_events(stdscr, tree1, maxx):
             tree1.musichidetime = int(time.time()) + 5
 
     if key == ord(" "):
-        tree1.media.pause()
+        if tree1.media.is_playing():
+            tree1.media.pause()
         tree1.pause = True
         tree1.pausetime = time.time()
 
     if key == ord("m"):
-        if tree1.media.is_playing():
-            tree1.media.pause()
-        else:
-            tree1.media.play()
+        tree1.media.pause()
 
     if not tree1.isloading and key == ord("n"):
         tree1.lofiradio()
@@ -444,7 +442,8 @@ class tree:
         if self.istimer:
             alarm = vlc.MediaPlayer(str(RES_FOLDER / "alarm.wav"))
             alarm.play()
-            self.media.pause()
+            if self.media.is_playing():
+                self.media.pause()
             self.breakendtime = int(time.time()) + self.breaktime
             self.istimer = False
             self.isbreak = True
