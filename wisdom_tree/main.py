@@ -127,7 +127,7 @@ def key_events(stdscr, tree1, maxx):
     if key == curses.KEY_ENTER or key == 10 or key == 13:  # this is enter key
         if tree1.showtimer:
             if tree1.currentmenu == "timer":
-                tree1.starttimer(tree1.selectedtimer)
+                tree1.starttimer(tree1.selectedtimer, stdscr, maxx)
             else:
                 tree1.featureselect(tree1.selectedtimer)
             timerstart = vlc.MediaPlayer(str(RES_FOLDER / "timerstart.wav"))
@@ -136,7 +136,7 @@ def key_events(stdscr, tree1, maxx):
 
         if tree1.breakover:
             tree1.breakover = False
-            tree1.starttimer(tree1.selectedtimer)
+            tree1.starttimer(tree1.selectedtimer, stdscr, maxx)
             timerstart = vlc.MediaPlayer(str(RES_FOLDER / "timerstart.wav"))
             timerstart.play()
 
@@ -265,6 +265,7 @@ class tree:
             " POMODORO 20+10 ",
             " POMODORO 40+20 ",
             " POMODORO 50+10 ",
+            " CUSTOM TIMER ",
             " END TIMER NOW ",
         ]
         self.featurelist = [
@@ -471,12 +472,57 @@ class tree:
         if self.istimer and int(time.time()) == int(self.workendtime):
             self.breakstart()
 
-    def starttimer(self, inputtime):
-        if inputtime >= 4:
+    def starttimer(self, inputtime, stdscr, maxx):
+        if inputtime == 5:
             self.breakendtext = "TIMER IS OVER, PRESS ENTER"
             self.worktime = 0
             self.breaktime = 0
             self.istimer == False
+        
+        elif inputtime == 4:
+
+            try:
+
+                curses.textpad.rectangle(stdscr, 0,0,2, maxx-1)
+                stdscr.addstr(1,1, "ENTER WORK LENGTH (min) : ")
+                stdscr.refresh()
+
+                curses.echo()
+                curses.nocbreak()
+                stdscr.nodelay(False)
+                stdscr.keypad(False)
+                curses.curs_set(1)
+
+                self.worktime = int(stdscr.getstr())*60
+
+                stdscr.addstr(1,1, " "*(maxx-2))
+                stdscr.addstr(1,1, "ENTER BREAK LENGTH (min) : ")
+                stdscr.refresh()
+
+                self.breaktime = int(stdscr.getstr())*60
+
+                curses.noecho()
+                curses.cbreak()
+                stdscr.nodelay(True)
+                stdscr.keypad(True)
+                curses.curs_set(0)
+
+                self.istimer = True
+
+            except ValueError:
+                curses.noecho()
+                curses.cbreak()
+                stdscr.nodelay(True)
+                stdscr.keypad(True)
+                curses.curs_set(0)
+
+                self.notifystring = "VALUE ERROR, PLEASE ENTER AN INTEGER"
+                self.notifyendtime = int(time.time())+5
+                self.isnotify = True
+
+                return 0
+
+
         else:
             self.breakendtext = "BREAK IS OVER, PRESS ENTER TO START NEW TIMER"
             self.istimer = True
@@ -488,6 +534,8 @@ class tree:
     def featureselect(self, inputfeature):
         self.radiomode = False
         if inputfeature == 0:
+            if hasattr(self, "media"):
+                self.media.stop()
             self.youtubedisplay = True
         if inputfeature == 1:
             self.playlist = Playlist("https://www.youtube.com/playlist?list=PLOzDu-MXXLliO9fBNZOQTBDddoA3FzZUo")
