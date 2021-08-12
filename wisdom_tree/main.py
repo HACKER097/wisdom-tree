@@ -129,7 +129,7 @@ def key_events(stdscr, tree1, maxx):
             if tree1.currentmenu == "timer":
                 tree1.starttimer(tree1.selectedtimer, stdscr, maxx)
             else:
-                tree1.featureselect(tree1.selectedtimer)
+                tree1.featureselect(tree1.selectedtimer, maxx, stdscr)
             timerstart = vlc.MediaPlayer(str(RES_FOLDER / "timerstart.wav"))
             timerstart.play()
             tree1.showtimer = False
@@ -156,6 +156,7 @@ def key_events(stdscr, tree1, maxx):
             tree1.currentmenu = "feature"
 
         else:
+            tree1.radiomode = False
             tree1.music_list_num += 1
             if tree1.music_list_num > len(tree1.music_list) - 1:
                 tree1.music_list_num = len(tree1.music_list) - 1
@@ -170,6 +171,7 @@ def key_events(stdscr, tree1, maxx):
             tree1.selectedtimer = 0
             tree1.currentmenu = "timer"
         else:
+            tree1.radiomode = False
             tree1.music_list_num -= 1
             if tree1.music_list_num < 0:
                 tree1.music_list_num = 0
@@ -270,7 +272,10 @@ class tree:
         ]
         self.featurelist = [
             " PLAY MUSIC FROM YOUTUBE ",
-            " LOFI RADIO "
+            " LOFI RADIO 1 ",
+            " LOFI RADIO 2 ",
+            " LOFI RADIO 3 ",
+            " CUSTOM PLAYLIST "
         ]
         self.currentmenu = "timer"
         self.selectedtimer = 0
@@ -531,7 +536,7 @@ class tree:
 
         self.workendtime = int(time.time()) + self.worktime
 
-    def featureselect(self, inputfeature):
+    def featureselect(self, inputfeature, maxx, stdscr):
         self.radiomode = False
         if inputfeature == 0:
             if hasattr(self, "media"):
@@ -539,6 +544,37 @@ class tree:
             self.youtubedisplay = True
         if inputfeature == 1:
             self.playlist = Playlist("https://www.youtube.com/playlist?list=PLOzDu-MXXLliO9fBNZOQTBDddoA3FzZUo")
+            self.lofiradio()
+
+        if inputfeature == 2:
+            self.playlist = Playlist("https://www.youtube.com/playlist?list=PL0ONFXpPDe_mtm3ciwL-v7EE-7yLHDlP8")
+            self.lofiradio()
+
+        if inputfeature == 3:
+            self.playlist = Playlist("https://www.youtube.com/playlist?list=PLKYTmz7SemaqVDF6XJ15bv_8-j7ckkNgb")
+            self.lofiradio()
+
+        if inputfeature == 4:
+            curses.textpad.rectangle(stdscr, 0,0,2, maxx-1)
+            stdscr.addstr(1,1, "ENTER PLAyLIST LINK : ")
+            stdscr.refresh()
+
+            curses.echo()
+            curses.nocbreak()
+            stdscr.nodelay(False)
+            stdscr.keypad(False)
+            curses.curs_set(1)
+
+            templink = stdscr.getstr()
+            templink = str(templink)[1:][:-1]
+            self.playlist = Playlist(str(templink))
+
+            curses.noecho()
+            curses.cbreak()
+            stdscr.nodelay(True)
+            stdscr.keypad(True)
+            curses.curs_set(0)
+
             self.lofiradio()
 
     def loading(self, stdscr, maxx):
@@ -802,8 +838,13 @@ def main():
 
                 tree1.timer()
 
-                if not tree1.isloading and tree1.radiomode and round(tree1.media.get_position()*100) == 100:
-                    tree1.lofiradio()
+                if not tree1.isloading and round(tree1.media.get_position()*100) == 100:
+                    if tree1.radiomode:
+                        tree1.lofiradio()
+                    else:
+                        tree1.media.stop()
+                        tree1.media = vlc.MediaPlayer(tree1.music_list[tree1.music_list_num])
+                        tree1.media.play()   
 
                 if tree1.isloading:
                     tree1.loading(stdscr, maxx)
