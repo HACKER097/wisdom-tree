@@ -2,6 +2,14 @@
 
 Wisdom Tree is a tui concentration app I am working on. Inspired by the wisdom tree in Plants vs. Zombies which gives in-game tips when it grows, Wisdom Tree gives you real life tips when it grows. How can you grow the tree? by concentrating!
 
+
+# Screenshots
+![alt text](https://imgur.com/nFw46EN.png)
+![alt text](https://imgur.com/Q1rGccM.png)
+![alt text](https://imgur.com/VvRaLYd.png)
+![alt text](https://imgur.com/MJCkdMb.png)
+
+
 # Installation
 
 Wisdom-tree uses vlc to play music, please make sure vlc is installed. 
@@ -85,11 +93,6 @@ for the operating system:
 
 *for now, adding a custom quotes file disables the default quotes*
 
-# Screenshots
-![alt text](https://imgur.com/nFw46EN.png)
-![alt text](https://imgur.com/Q1rGccM.png)
-![alt text](https://imgur.com/VvRaLYd.png)
-![alt text](https://imgur.com/MJCkdMb.png)
 
 # Features
 
