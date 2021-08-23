@@ -17,10 +17,7 @@ Wisdom-tree uses vlc to play music, please make sure vlc is installed.
 
 Extra step for mac `brew install sdl2_mixer`
 
-Extra step for Windows `pip install windows-curses` or `pip3 install windows-curses`
-
-Youtube and lofi radio will not work for windows unless ffmpeg is installed.
-
+Extra step for Windows `pip install windows-curses`
 
 ## Installation from PyPi
 `pip install wisdom-tree` or `pip3 install wisdom-tree`
