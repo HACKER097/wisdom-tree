@@ -13,6 +13,8 @@ import threading
 import ctypes
 import vlc
 
+os.environ['VLC_VERBOSE'] = '-1'
+
 if not os.name == "posix" and not ctypes.windll.shell32.IsUserAnAdmin() != 0:
     print("PLEASE RUN AS ADMINISTRATOR")
     exit()
@@ -196,19 +198,61 @@ def key_events(stdscr, tree1, maxx):
     if key == ord("]"):
         tree1.media.audio_set_volume(tree1.media.audio_get_volume()+1)
         tree1.notifyendtime = int(time.time()) + 2
-        tree1.isnotify = True
         volume = str(round(tree1.media.audio_get_volume())) + "%"
         tree1.notifystring = " "*round(maxx*(tree1.media.audio_get_volume()/100)-len(volume)-2) + volume
         tree1.invert = True
+        tree1.isnotify = True
 
     if key == ord("["):
         tree1.media.audio_set_volume(tree1.media.audio_get_volume()-1)
         tree1.notifyendtime = int(time.time()) + 2
-        tree1.isnotify = True
         volume = str(round(tree1.media.audio_get_volume())) + "%"
         tree1.notifystring = " "*round(maxx*(tree1.media.audio_get_volume()/100)-len(volume)-2) + volume
-        tree1.invert = True
 
+        tree1.invert = True
+        tree1.isnotify = True
+
+    if key == ord("="):
+
+        if tree1.media.get_time()+10000 < tree1.media.get_length():
+            tree1.media.set_time(i_time=tree1.media.get_time()+10000)
+        else:
+            tree1.media.set_time(tree1.media.get_length()-1)
+
+        time_sec = tree1.media.get_time()/1000
+        display_time =  str(int(time_sec / 60)).zfill(2) + ":" + str(int(time_sec) % 60).zfill(2)
+        tree1.notifyendtime = int(time.time()) + 2
+        try:
+            tree1.notifystring = " "*(round(maxx*(tree1.media.get_time()/tree1.media.get_length()))-len(display_time)) + display_time
+        except ZeroDivisionError:
+            pass
+        tree1.invert = True
+        tree1.isnotify = True
+
+    if key == ord("-"):
+        if tree1.media.get_time()-10000 > 0:
+            tree1.media.set_time(i_time=tree1.media.get_time()-10000)
+        else:
+            tree1.media.set_time(0)
+
+
+        time_sec = tree1.media.get_time()/1000
+        display_time =  str(int(time_sec / 60)).zfill(2) + ":" + str(int(time_sec) % 60).zfill(2)
+        tree1.notifyendtime = int(time.time()) + 2
+        tree1.notifystring = " "*(round(maxx*(tree1.media.get_time()/tree1.media.get_length()))-len(display_time)) + display_time
+        tree1.invert = True
+        tree1.isnotify = True
+
+    for i in range(10):
+        if key == ord(str(i)):
+            tree1.media.set_time(i_time=int(tree1.media.get_length()*(i/10)))
+
+            time_sec = tree1.media.get_time()/1000
+            display_time =  str(int(time_sec / 60)).zfill(2) + ":" + str(int(time_sec) % 60).zfill(2)
+            tree1.notifyendtime = int(time.time()) + 2
+            tree1.notifystring = " "*(round(maxx*(tree1.media.get_time()/tree1.media.get_length()))-len(display_time)) + display_time
+            tree1.invert = True
+            tree1.isnotify = True
 
     if tree1.media.audio_get_volume() > 100:
         tree1.media.audio_set_volume(100)
@@ -656,17 +700,19 @@ class tree:
 
         except:
             self.notifyendtime = int(time.time()) + 5
-            self.isnotify = True
             self.notifystring = "ERROR GETTING AUDIO, PLEASE TRY AGAIN"
+            self.isnotify = True
             exit()
 
         self.downloaddisplay = False
 
+        self.yt_title = yt.title
+
 
         self.notifyendtime = int(time.time()) + 10
-        self.isnotify = True
-        self.notifystring = "Playing: " + yt.title
+        self.notifystring = "Playing: " + self.yt_title
         self.invert = False
+        self.isnotify = True
 
     def getlofisong(self): 
         # some links dont work, use recursion to find a link which works
@@ -683,9 +729,9 @@ class tree:
             self.isloading = False
 
             self.notifyendtime = int(time.time()) + 10
-            self.isnotify = True
             self.notifystring = "UNABLE TO CONNECT, PLEASE CHECK INTERNET CONNECTION"
             self.invert = False
+            self.isnotify = True
             self.radiomode = False
             exit()
       
@@ -717,9 +763,9 @@ class tree:
         self.media.play()
 
         self.notifyendtime = int(time.time()) + 10
-        self.isnotify = True
         self.notifystring = "Playing: " + YouTube(self.lofilink).title
         self.invert = False
+        self.isnotify = True
 
         self.lofisong = self.getlofisong()
 
