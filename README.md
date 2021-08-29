@@ -74,6 +74,10 @@ While using lofi-radio use `n` to skip song and `r` to replay
 
 `space` to pause and unpause.
 
+`+`, `-` to seek 10 sec forwards and backwords
+
+number keys `0-9` to go 0-90% into the audio. Eg; pressing 6 will take you 60% into the audio, 7 will take you 70% and so on.
+
 To exit press `q`
 
 ## Custom quotes
