@@ -112,7 +112,11 @@ Lo-Fi radio
 
 # Upcoming Features
 
-All done here!
+~~Play music from youtube~~
+
+~~Lo-Fi radio~~
+
+If you would like to see a feature implemented, please open an issue with tag [FEATURE REQUEST]
 
 # Tipping 
 
