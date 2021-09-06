@@ -357,7 +357,7 @@ class tree:
             self.artfile = str(RES_FOLDER/"p4.txt")
         if self.age >= 30 and self.age < 40:
             self.artfile = str(RES_FOLDER/"p5.txt")
-        if self.age >= 40 and self.age < 60:
+        if self.age >= 40 and self.age < 70:
             self.artfile = str(RES_FOLDER/"p6.txt")
         if self.age >= 70 and self.age < 120:
             self.artfile = str(RES_FOLDER/"p7.txt")
