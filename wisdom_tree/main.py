@@ -24,8 +24,20 @@ QUOTE_FOLDER = Path(__file__).parent
 QUOTE_FILE_NAME = "qts.txt"
 QUOTE_FILE = QUOTE_FOLDER / QUOTE_FILE_NAME
 
-TIMER_WORK = (20 * 60, 20 * 60, 40 * 60, 50 * 60)
-TIMER_BREAK = (20 * 60, 10 * 60, 20 * 60, 10 * 60)
+TIMER_WORK_MINS =  (1 , 20 , 40 , 50)
+TIMER_BREAK_MINS = (33 , 10 , 20 , 10)
+
+TIMER_WORK = (
+	TIMER_WORK_MINS[0] * 60, 
+	TIMER_WORK_MINS[1] * 60, 
+	TIMER_WORK_MINS[2] * 60, 
+	TIMER_WORK_MINS[3] * 60)
+
+TIMER_BREAK = (
+	TIMER_BREAK_MINS[0] * 60, 
+	TIMER_BREAK_MINS[1] * 60, 
+	TIMER_BREAK_MINS[2] * 60, 
+	TIMER_BREAK_MINS[3] * 60)
 
 __all__ = ["run_app"]
 
@@ -307,10 +319,10 @@ class tree:
         self.pause = False
         self.showtimer = False
         self.timerlist = [
-            " POMODORO 20+20 ",
-            " POMODORO 20+10 ",
-            " POMODORO 40+20 ",
-            " POMODORO 50+10 ",
+            " POMODORO {}+{} ".format(TIMER_WORK_MINS[0], TIMER_BREAK_MINS[0]),
+            " POMODORO {}+{} ".format(TIMER_WORK_MINS[1], TIMER_BREAK_MINS[1]),
+            " POMODORO {}+{} ".format(TIMER_WORK_MINS[2], TIMER_BREAK_MINS[2]),
+            " POMODORO {}+{} ".format(TIMER_WORK_MINS[3], TIMER_BREAK_MINS[3]),
             " CUSTOM TIMER ",
             " END TIMER NOW ",
         ]
