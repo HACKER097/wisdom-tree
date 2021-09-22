@@ -39,6 +39,11 @@ TIMER_BREAK = (
 	TIMER_BREAK_MINS[2] * 60, 
 	TIMER_BREAK_MINS[3] * 60)
 
+SOUNDS_MUTED = False # This is for only growth and start_timer, alarm stays
+TIMER_START_SOUND = str(RES_FOLDER / "timerstart.wav")
+ALARM_SOUND = str(RES_FOLDER / "alarm.wav")
+GROWTH_SOUND = str(RES_FOLDER/ "growth.waw")
+
 __all__ = ["run_app"]
 
 def get_user_config_directory():
@@ -60,6 +65,18 @@ def get_user_config_directory():
     if xdg_config_home:
         return xdg_config_home
     return os.path.join(os.path.expanduser("~"), ".config")
+
+def play_sound(sound):
+
+    if SOUNDS_MUTED and sound != ALARM_SOUND:
+        return
+
+    media = vlc.MediaPlayer(sound)
+    media.play()
+
+def toggle_sounds():
+    global SOUNDS_MUTED
+    SOUNDS_MUTED = not SOUNDS_MUTED
 
 def isinternet():
     try:
@@ -144,15 +161,13 @@ def key_events(stdscr, tree1, maxx):
                 tree1.starttimer(tree1.selectedtimer, stdscr, maxx)
             else:
                 tree1.featureselect(tree1.selectedtimer, maxx, stdscr)
-            timerstart = vlc.MediaPlayer(str(RES_FOLDER / "timerstart.wav"))
-            timerstart.play()
+            play_sound(TIMER_START_SOUND)
             tree1.showtimer = False
 
         if tree1.breakover:
             tree1.breakover = False
             tree1.starttimer(tree1.selectedtimer, stdscr, maxx)
-            timerstart = vlc.MediaPlayer(str(RES_FOLDER / "timerstart.wav"))
-            timerstart.play()
+            play_sound(TIMER_START_SOUND)
 
     if key == ord("q"):
         treedata = open(RES_FOLDER / "treedata", "wb")
@@ -163,6 +178,9 @@ def key_events(stdscr, tree1, maxx):
         for file in list(_ for _ in QUOTE_FOLDER.glob("*.webm")):
             os.remove(file)
         exit()
+
+    if key == ord("u"):
+        toggle_sounds()
 
     if key in (curses.KEY_RIGHT, ord("l")):
         if tree1.showtimer:
@@ -502,8 +520,7 @@ class tree:
 
     def breakstart(self):
         if self.istimer:
-            alarm = vlc.MediaPlayer(str(RES_FOLDER / "alarm.wav"))
-            alarm.play()
+            play_sound(ALARM_SOUND)
             if self.media.is_playing():
                 self.media.pause()
             self.breakendtime = int(time.time()) + self.breaktime
@@ -526,8 +543,7 @@ class tree:
             self.media.play()
             self.isbreak = False
             self.breakover = True
-            alarm = vlc.MediaPlayer(str(RES_FOLDER / "alarm.wav"))
-            alarm.play()
+            play_sound(ALARM_SOUND)
 
     def timer(self):
         if self.istimer and int(time.time()) == int(self.workendtime):
@@ -819,8 +835,6 @@ def main():
         curses.init_pair(7, 1, 0)
 
 
-    tree_grow = vlc.MediaPlayer(RES_FOLDER/ "growth.waw")
-
     seconds = 5
     anilen = 1
     anispeed = 1
@@ -829,7 +843,7 @@ def main():
     music_volume_max = 1
 
     quote = getqt()
-    tree_grow.play()
+    play_sound(GROWTH_SOUND)
 
     tree1 = tree(stdscr, 1)
     tree1.media.play()
@@ -862,8 +876,7 @@ def main():
                     quote = getqt()
                     tree1.age += 1
                     anilen = 1
-                    tree_grow = vlc.MediaPlayer(RES_FOLDER/ "growth.waw")
-                    tree_grow.play()
+                    play_sound(GROWTH_SOUND)
 
                 if tree1.musichidetime <= int(time.time()):
                     tree1.show_music = False
