@@ -74,7 +74,7 @@ While using lofi-radio use `n` to skip song and `r` to replay
 
 `m` to mute music.
 
-`u` for q[u]iet mode to mute growth sounds and timer start sounds.
+`u` to toggle q[u]iet mode, which mutes growth sounds and timer start sounds.
 
 `space` to pause and unpause.
 
