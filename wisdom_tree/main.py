@@ -44,6 +44,8 @@ TIMER_START_SOUND = str(RES_FOLDER / "timerstart.wav")
 ALARM_SOUND = str(RES_FOLDER / "alarm.wav")
 GROWTH_SOUND = str(RES_FOLDER/ "growth.waw")
 
+effect_volume = 100 # How loud sound effects are, not including ambience and music.
+
 __all__ = ["run_app"]
 
 def get_user_config_directory():
@@ -72,6 +74,7 @@ def play_sound(sound):
         return
 
     media = vlc.MediaPlayer(sound)
+    media.audio_set_volume(effect_volume)
     media.play()
 
 def toggle_sounds():
@@ -143,6 +146,9 @@ def printart(
 
 
 def key_events(stdscr, tree1, maxx):
+
+    global effect_volume # Used for setting the sound effect volume with '{' and '}'
+
     key = stdscr.getch()
 
     if key in (curses.KEY_UP, ord("k")):
@@ -239,6 +245,26 @@ def key_events(stdscr, tree1, maxx):
         volume = str(round(tree1.media.audio_get_volume())) + "%"
         tree1.notifystring = " "*round(maxx*(tree1.media.audio_get_volume()/100)-len(volume)-2) + volume
 
+        tree1.invert = True
+        tree1.isnotify = True
+
+    if key == ord("}"):
+        effect_volume = min(100, effect_volume+1)
+
+        tree1.notifyendtime = int(time.time()) + 2
+
+        volume = str(effect_volume) + "%"
+        tree1.notifystring = " "*round(maxx*(effect_volume/100)-len(volume)-2) + volume
+        tree1.invert = True
+        tree1.isnotify = True
+
+    if key == ord("{"):
+        effect_volume = max(0, effect_volume-1)
+
+        tree1.notifyendtime = int(time.time()) + 2
+
+        volume = str(effect_volume) + "%"
+        tree1.notifystring = " "*round(maxx*(effect_volume/100)-len(volume)-2) + volume
         tree1.invert = True
         tree1.isnotify = True
 
