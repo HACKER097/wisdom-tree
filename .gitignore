@@ -216,5 +216,5 @@ ENV/
 
 # End of https://www.gitignore.io/api/macos,linux,django,python,pycharmvenv
 
-# user tree data, we want to avoid this being overridden
+# user tree data, we don't need to have this included in the repo, it will be generated upon starting.
 wisdom_tree/res/treedata
