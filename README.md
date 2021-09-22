@@ -66,11 +66,15 @@ Use `up` an `down` arrow keys an `enter` to select and start Pomodoro timers.
 
 While using lofi-radio use `n` to skip song and `r` to replay
 
-`[` and `]` to increase and decrease the volume respectively
+`[` and `]` to increase and decrease the music/ambience volume respectively
+
+`{` and `}` to increase and decrease the sound effect volume respectively
 
 *You can replace arrow keys with vim's navigation keys (hjkl)*
 
 `m` to mute music.
+
+`u` to toggle q[u]iet mode, which mutes growth sounds and timer start sounds.
 
 `space` to pause and unpause.
 
