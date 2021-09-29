@@ -1,5 +1,4 @@
 import os
-os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 import curses
 from curses import textpad
 import time
@@ -10,14 +9,9 @@ from pytube import YouTube, Playlist
 import re
 import urllib.request
 import threading
-import ctypes
 import vlc
 
 os.environ['VLC_VERBOSE'] = '-1'
-
-if not os.name == "posix" and not ctypes.windll.shell32.IsUserAnAdmin() != 0:
-    print("PLEASE RUN AS ADMINISTRATOR")
-    exit()
 
 RES_FOLDER = Path(__file__).parent / "res"
 QUOTE_FOLDER = Path(__file__).parent
@@ -179,10 +173,6 @@ def key_events(stdscr, tree1, maxx):
         treedata = open(RES_FOLDER / "treedata", "wb")
         pickle.dump(tree1.age, treedata, protocol=None)
         treedata.close()
-        for file in list(_ for _ in QUOTE_FOLDER.glob("*.ogg")):
-            os.remove(file)
-        for file in list(_ for _ in QUOTE_FOLDER.glob("*.webm")):
-            os.remove(file)
         exit()
 
     if key == ord("u"):
@@ -232,7 +222,7 @@ def key_events(stdscr, tree1, maxx):
         tree1.lofiradio()
 
     if key == ord("]"):
-        tree1.media.audio_set_volume(tree1.media.audio_get_volume()+1)
+        tree1.media.audio_set_volume(min(100, tree1.media.audio_get_volume()+1))
         tree1.notifyendtime = int(time.time()) + 2
         volume = str(round(tree1.media.audio_get_volume())) + "%"
         tree1.notifystring = " "*round(maxx*(tree1.media.audio_get_volume()/100)-len(volume)-2) + volume
@@ -240,13 +230,15 @@ def key_events(stdscr, tree1, maxx):
         tree1.isnotify = True
 
     if key == ord("["):
-        tree1.media.audio_set_volume(tree1.media.audio_get_volume()-1)
+        tree1.media.audio_set_volume(max(0, tree1.media.audio_get_volume()-1))
         tree1.notifyendtime = int(time.time()) + 2
         volume = str(round(tree1.media.audio_get_volume())) + "%"
         tree1.notifystring = " "*round(maxx*(tree1.media.audio_get_volume()/100)-len(volume)-2) + volume
 
         tree1.invert = True
         tree1.isnotify = True
+        tree1.media.audio_set_volume(max(0, tree1.media.audio_get_volume()-1))
+        tree1.notifyendtime = int(time.time()) + 2
 
     if key == ord("}"):
         effect_volume = min(100, effect_volume+1)
@@ -299,6 +291,17 @@ def key_events(stdscr, tree1, maxx):
         tree1.invert = True
         tree1.isnotify = True
 
+    if key == ord("r"):
+        if tree1.isloop:
+            tree1.isloop = False
+        else:
+            tree1.isloop = True
+
+        tree1.notifyendtime = int(time.time()) + 2
+        tree1.notifystring = "REPEAT: " + str(tree1.isloop)
+        tree1.invert = False
+        tree1.isnotify = True
+
     for i in range(10):
         if key == ord(str(i)):
             tree1.media.set_time(i_time=int(tree1.media.get_length()*(i/10)))
@@ -309,9 +312,6 @@ def key_events(stdscr, tree1, maxx):
             tree1.notifystring = " "*(round(maxx*(tree1.media.get_time()/tree1.media.get_length()))-len(display_time)) + display_time
             tree1.invert = True
             tree1.isnotify = True
-
-    if tree1.media.audio_get_volume() > 100:
-        tree1.media.audio_set_volume(100)
 
 
 
@@ -329,19 +329,6 @@ def GetSong(link):
     except:
         return "DOWNLOAD ERROR"
 
-    try:
-        AudioSegment.from_file(songfile, "webm").export(str(songfile + ".ogg"), format="ogg")
-    except:
-        return "CONVERT ERROR"
-
-    os.remove(songfile) 
-    if os.name == "posix":
-        songpath = str(songfile+".ogg").split("/")[-1]
-    else:
-        songpath = str(songfile+".ogg").split("\\")[-1]
-        
-    os.rename(songfile+".ogg", songpath)
-
     return songpath
 
 def GetLinks(search_string):
@@ -357,7 +344,7 @@ class tree:
         self.stdscr = stdscr
         self.age = age
         self.show_music = False
-        self.music_list = list(_ for _ in RES_FOLDER.glob("*.ogg"))
+        self.music_list = list(_ for _ in RES_FOLDER.glob("*ogg"))
         self.music_list_num = 0
         self.media = vlc.MediaPlayer(str(self.music_list[self.music_list_num]))
         self.pause = False
@@ -388,6 +375,7 @@ class tree:
         self.season = random.choice(
             ["rain", "heavy_rain", "light_rain", "snow", "windy"]
         )
+        random.seed()
         self.youtubedisplay = False
         self.downloaddisplay = False
         self.spinnerstate = 0
@@ -399,7 +387,8 @@ class tree:
         self.isloading = False
         self.invert = False
         self.breakendtext = "BREAK IS OVER, PRESS ENTER TO START NEW TIMER"
-        random.seed()
+        self.isloop = False
+
 
 
     def display(self, maxx, maxy, seconds):
@@ -935,9 +924,13 @@ def main():
 
                 tree1.timer()
 
-                if not tree1.isloading and round(tree1.media.get_position()*100) == 100:
+                if tree1.media.is_playing() and tree1.media.get_length() - tree1.media.get_time() < 1000  :
+
                     if tree1.radiomode:
                         tree1.lofiradio()
+
+                    if tree1.isloop:
+                        tree1.media.set_position(0)
                     else:
                         tree1.media.stop()
                         tree1.media = vlc.MediaPlayer(tree1.music_list[tree1.music_list_num])
@@ -970,10 +963,6 @@ def main():
                         treedata = open(RES_FOLDER / "treedata", "wb")
                         pickle.dump(tree1.age, treedata, protocol=None)
                         treedata.close()
-                        for file in list(_ for _ in QUOTE_FOLDER.glob("*.ogg")):
-                            os.remove(file)
-                        for file in list(_ for _ in QUOTE_FOLDER.glob("*.webm")):
-                            os.remove(file)
                         exit()
 
                     time.sleep(0.1)
@@ -999,10 +988,6 @@ def main():
                         treedata = open(RES_FOLDER / "treedata", "wb")
                         pickle.dump(tree1.age, treedata, protocol=None)
                         treedata.close()
-                        for file in list(_ for _ in QUOTE_FOLDER.glob("*.ogg")):
-                            os.remove(file)
-                        for file in list(_ for _ in QUOTE_FOLDER.glob("*.webm")):
-                            os.remove(file)
                         exit()
 
                     time.sleep(0.1)
