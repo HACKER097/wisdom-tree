@@ -652,9 +652,7 @@ class tree:
             stdscr.keypad(False)
             curses.curs_set(1)
 
-            templink = stdscr.getstr()
-            templink = str(templink)[1:][:-1]
-            self.playlist = Playlist(str(templink))
+            self.playlist = Playlist(stdscr.getstr().decode("utf-8"))
 
             curses.noecho()
             curses.cbreak()
@@ -704,7 +702,7 @@ class tree:
                 stdscr.keypad(False)
                 curses.curs_set(1)
 
-                songinput = str(stdscr.getstr())
+                songinput = stdscr.getstr().decode("utf-8")
 
                 curses.noecho()
                 curses.cbreak()
