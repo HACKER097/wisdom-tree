@@ -1,5 +1,12 @@
 <h3 align="center"><img src="wisdom_tree/res/logo_512x512.png" alt="wisdom-tree"><br>Wisdom Tree</h3>
 
+<p align="center">
+
+[![Downloads](https://pepy.tech/badge/wisdom-tree)](https://pepy.tech/project/wisdom-tree)
+[![Downloads](https://pepy.tech/badge/wisdom-tree/month)](https://pepy.tech/project/wisdom-tree)
+[![Downloads](https://pepy.tech/badge/wisdom-tree/week)](https://pepy.tech/project/wisdom-tree)
+
+</p>
 
 Wisdom Tree is a tui concentration app. Inspired by the wisdom tree in Plants vs. Zombies which gives in-game tips when it grows, Wisdom Tree gives you real life tips when it grows. How can you grow the tree? by concentrating!
 
