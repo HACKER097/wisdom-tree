@@ -9,7 +9,6 @@ from pytube import YouTube, Playlist
 import re
 import urllib.request
 import threading
-import asyncio
 import vlc
 
 os.environ['VLC_VERBOSE'] = '-1'
