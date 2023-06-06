@@ -191,9 +191,20 @@ def key_events(stdscr, tree1, maxx):
             tree1.media.stop()
             tree1.media = vlc.MediaPlayer(tree1.music_list[tree1.music_list_num])
             tree1.media.play()
-            tree1.show_music = True
-            tree1.musichidetime = int(time.time()) + 5
+            if os.name == "posix":
+                tree1.notifystring = (
+                    "Playing: "
+                    + str(tree1.music_list[tree1.music_list_num]).split("/")[-1]
+                )
+            else:
+                tree1.notifystring = (
+                    "Playing: "
+                    + str(tree1.music_list[tree1.music_list_num]).split('\\')[-1]
+                )
 
+            tree1.notifyendtime = int(time.time()) + 5
+            tree1.isnotify = True
+            
     if key in (curses.KEY_LEFT, ord("h")):
         if tree1.showtimer:
             tree1.selectedtimer = 0
@@ -206,8 +217,19 @@ def key_events(stdscr, tree1, maxx):
             tree1.media.stop()
             tree1.media = vlc.MediaPlayer(tree1.music_list[tree1.music_list_num])
             tree1.media.play()
-            tree1.show_music = True
-            tree1.musichidetime = int(time.time()) + 5
+            if os.name == "posix":
+                tree1.notifystring = (
+                    "Playing: "
+                    + str(tree1.music_list[tree1.music_list_num]).split("/")[-1]
+                )
+            else:
+                tree1.notifystring = (
+                    "Playing: "
+                    + str(tree1.music_list[tree1.music_list_num]).split('\\')[-1]
+                )
+
+            tree1.notifyendtime = int(time.time()) + 5
+            tree1.isnotify = True
 
     if key == ord(" "):
         if tree1.media.is_playing():
@@ -215,8 +237,8 @@ def key_events(stdscr, tree1, maxx):
         tree1.pause = True
         tree1.pausetime = time.time()
 
-    if key == ord("m"):
-        tree1.media.pause()
+        if key == ord("m"):
+            tree1.media.pause()
 
     if not tree1.isloading and key == ord("n"):
         tree1.lofiradio()
@@ -374,7 +396,6 @@ class tree:
         self.isbreak = False
         self.breakover = False
         self.timerhidetime = 0
-        self.musichidetime = 0
         random.seed(int(time.time() / (60 * 60 * 24)))
         self.season = random.choice(
             ["rain", "heavy_rain", "light_rain", "snow", "windy"]
@@ -895,27 +916,7 @@ def main():
                     anilen = 1
                     play_sound(GROWTH_SOUND)
 
-                if tree1.musichidetime <= int(time.time()):
-                    tree1.show_music = False
-
-                if tree1.show_music:
-                    if os.name == "posix":
-                        showtext = (
-                            "Playing: "
-                            + str(tree1.music_list[tree1.music_list_num]).split("/")[-1]
-                        )
-                    else:
-                        showtext = (
-                            "Playing: "
-                            + str(tree1.music_list[tree1.music_list_num]).split('\\')[-1]
-                        )
-                    stdscr.addstr(
-                        int(maxy / 10),
-                        int(maxx / 2 - len(showtext) / 2),
-                        showtext,
-                        curses.A_BOLD,
-                    )
-
+      
                 tree1.display(maxx, maxy, seconds)
 
                 tree1.seasons(maxx, maxy, seconds)
