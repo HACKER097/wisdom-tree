@@ -717,7 +717,7 @@ class tree:
     def youtube(self, stdscr, maxx):
         if self.youtubedisplay:
             curses.textpad.rectangle(stdscr, 0,0,2, maxx-1)
-            stdscr.addstr(1,1, "ENTER SEARCH QUERY/LINK : ")
+            stdscr.addstr(1,1, "SEARCH [type 'q' to exit]: ")
             stdscr.refresh()
 
             if not "songinput" in locals():
@@ -736,20 +736,19 @@ class tree:
                 stdscr.keypad(True)
                 curses.curs_set(0)
 
+            if not songinput == "q":
+                stdscr.addstr(1,1, "GETTING AUDIO")
 
-            stdscr.addstr(1,1, "GETTING AUDIO")
+                getsongthread = threading.Thread(target=self.playyoutube, args=(songinput,))
+                getsongthread.daemon = True
+                getsongthread.start()
 
-            getsongthread = threading.Thread(target=self.playyoutube, args=(songinput,))
-            getsongthread.daemon = True
-            getsongthread.start()
-
-            self.youtubedisplay = False
-
-            self.downloaddisplay = True
+                self.downloaddisplay = True
 
             del songinput
 
-
+            self.youtubedisplay = False
+            
 
         if self.downloaddisplay:
             self.loading(stdscr, maxx)
