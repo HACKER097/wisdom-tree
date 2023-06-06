@@ -9,6 +9,7 @@ from pytube import YouTube, Playlist
 import re
 import urllib.request
 import threading
+import asyncio
 import vlc
 
 os.environ['VLC_VERBOSE'] = '-1'
@@ -802,9 +803,10 @@ class tree:
             exit()
       
 
-    def lofiradio(self):
-         #lofi playlist from youtube
-
+    def lofiradio(self): #lofi playlist from youtube
+        if self.isloading:
+            return 
+        
         self.media.stop()
 
         self.isloading = True
@@ -816,18 +818,15 @@ class tree:
 
 
     def actuallofiradio(self):
-
-
         if not hasattr(self, "lofisong"):
             self.lofisong = self.getlofisong()
 
         if self.lofisong == "ERROR":
             exit()
 
-
         self.media = vlc.MediaPlayer(self.lofisong)
         self.media.play()
-
+        
         self.notifyendtime = int(time.time()) + 10
         self.notifystring = "Playing: " + YouTube(self.lofilink).title
         self.invert = False
@@ -836,10 +835,6 @@ class tree:
         self.lofisong = self.getlofisong()
 
         self.isloading = False
-
-
-
-
 
 def main():
     run = True
@@ -885,7 +880,7 @@ def main():
 
     tree1 = tree(stdscr, 1)
     tree1.media.play()
-
+    
     try:
 
         treedata_in = open(RES_FOLDER/ "treedata", "rb")
@@ -909,7 +904,7 @@ def main():
                 anilen += anispeed
                 if anilen > 150:
                     anilen = 150
-
+                    
                 if (seconds % (100 * 60 * 10) == 0):  # show another quote every 5 min, and grow tree
                     quote = getqt()
                     tree1.age += 1
@@ -963,6 +958,7 @@ def main():
                             tree1.workendtime += time.time() - tree1.pausetime
 
                     if key == ord("q"):
+
                         treedata = open(RES_FOLDER / "treedata", "wb")
                         pickle.dump(tree1.age, treedata, protocol=None)
                         treedata.close()
