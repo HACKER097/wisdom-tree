@@ -222,24 +222,28 @@ def key_events(stdscr, tree1, maxx):
         tree1.lofiradio()
 
     if key == ord("]"):
-        tree1.media.audio_set_volume(min(100, tree1.media.audio_get_volume()+1))
+        new_volume = tree1.media.audio_get_volume()+1
+        
+        tree1.media.audio_set_volume(min(100, new_volume))
         tree1.notifyendtime = int(time.time()) + 2
-        volume = str(round(tree1.media.audio_get_volume())) + "%"
-        tree1.notifystring = " "*round(maxx*(tree1.media.audio_get_volume()/100)-len(volume)-2) + volume
+        volumeStr = str(round(new_volume)) + "%"
+
+        tree1.notifystring = " "*round(maxx*(new_volume/100)-len(volumeStr)-2) + volumeStr
         tree1.invert = True
         tree1.isnotify = True
 
     if key == ord("["):
-        tree1.media.audio_set_volume(max(0, tree1.media.audio_get_volume()-1))
+        new_volume = tree1.media.audio_get_volume()-1
+        
+        tree1.media.audio_set_volume(min(100, new_volume))
         tree1.notifyendtime = int(time.time()) + 2
-        volume = str(round(tree1.media.audio_get_volume())) + "%"
-        tree1.notifystring = " "*round(maxx*(tree1.media.audio_get_volume()/100)-len(volume)-2) + volume
+        volumeStr = str(round(new_volume)) + "%"
 
+        tree1.notifystring = " "*round(maxx*(new_volume/100)-len(volumeStr)-2) + volumeStr
         tree1.invert = True
         tree1.isnotify = True
-        tree1.media.audio_set_volume(max(0, tree1.media.audio_get_volume()-1))
-        tree1.notifyendtime = int(time.time()) + 2
 
+        
     if key == ord("}"):
         effect_volume = min(100, effect_volume+1)
 
