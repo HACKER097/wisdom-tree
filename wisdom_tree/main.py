@@ -237,8 +237,8 @@ def key_events(stdscr, tree1, maxx):
         tree1.pause = True
         tree1.pausetime = time.time()
 
-        if key == ord("m"):
-            tree1.media.pause()
+    if key == ord("m"):
+        tree1.media.pause()
 
     if not tree1.isloading and key == ord("n"):
         tree1.lofiradio()
