@@ -99,7 +99,7 @@ To exit press `q`
 ## Custom quotes
 
 The user can use any set of quotes by adding a file called `qts.txt` with
-one qoute per line to the defualt config location:
+one qoute per line to the default config location:
 
 {`CONFIG_LOCATION`}/wisdom-tree
 
