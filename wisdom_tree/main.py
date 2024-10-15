@@ -5,11 +5,12 @@ import time
 import random
 import pickle
 from pathlib import Path
-from pytube import YouTube, Playlist
 import re
 import urllib.request
 import threading
 import vlc
+import requests
+from pytubefix import YouTube, Playlist
 
 os.environ['VLC_VERBOSE'] = '-1'
 
@@ -63,6 +64,8 @@ def get_user_config_directory():
     return os.path.join(os.path.expanduser("~"), ".config")
 
 def play_sound(sound):
+    
+    '''plays the sound if not muted'''
 
     if SOUNDS_MUTED and sound != ALARM_SOUND:
         return
@@ -115,18 +118,21 @@ def addtext(
 
 
 def getrandomline(file):  # returns random quote
+    '''reads quote file and returns a quote at random'''
     lines = open(file, encoding="utf8").read().splitlines()
     myline = random.choice(lines)
     return myline
 
 
-def getqt():  # returns random quote
+def getqt():  
+    '''returns random quote from quote file'''
     return getrandomline(QUOTE_FILE)
 
 
 def printart(
     stdscr, file, x, y, color_pair
-):  # prints line one by one to display text art, also in the middle
+):
+    '''prints line one by one to display text art, also in the middle'''
     with open(file, "r", encoding="utf8") as f:
         lines = f.readlines()
 
@@ -355,11 +361,13 @@ def GetSong(link):
     except:
         return "DOWNLOAD ERROR"
 
-    return songpath
+    return songfile
 
 def GetLinks(search_string):
-    html = urllib.request.urlopen("https://www.youtube.com/results?search_query=" + search_string.replace(" ", "+"))
-    video_ids = re.findall(r"watch\?v=(\S{11})", html.read().decode())
+    search_url = "https://www.youtube.com/results?search_query=" + search_string.replace(" ", "+")
+    # html = urllib.request.urlopen()
+    html = requests.get(search_url)
+    video_ids = re.findall(r"watch\?v=(\S{11})", html.content.decode())
     return "http://youtube.com/watch?v=" + str(video_ids[0])
 
 #print(GetSong(GetLinks(input())))
@@ -417,6 +425,7 @@ class tree:
 
 
     def display(self, maxx, maxy, seconds):
+        '''draw the bonsai tree on stdscr'''
         if self.age >= 1 and self.age < 5:
             self.artfile = str(RES_FOLDER/"p1.txt")
         if self.age >= 5 and self.age < 10:
@@ -836,16 +845,17 @@ class tree:
 
 def main():
     run = True
-    stdscr = curses.initscr()
-    stdscr.nodelay(True)
-    stdscr.keypad(True)
-    curses.curs_set(0)
-    curses.start_color()
-    curses.noecho()
-    curses.cbreak()
+    stdscr = curses.initscr() # initialize the curses object
+    stdscr.nodelay(True) # executes the program without waiting for user input
+    stdscr.keypad(True) # enables user input
+    curses.curs_set(0) # turns off cursor blinking
+    curses.start_color() # initializes colors
+    curses.noecho() # stops echoing user input
+    curses.cbreak() # user input is read character by character
 
-    curses.use_default_colors()
+    curses.use_default_colors() 
 
+    # setting color pairs
     try:
 
         curses.init_pair(1, 113, -1)  # passive selected text inner, outer
@@ -867,16 +877,16 @@ def main():
 
 
     seconds = 5
-    anilen = 1
-    anispeed = 1
+    anilen = 1 # animation length
+    anispeed = 1 # animation speed
 
     music_volume = 0
     music_volume_max = 1
 
-    quote = getqt()
-    play_sound(GROWTH_SOUND)
+    quote = getqt() # gets quote to display
+    play_sound(GROWTH_SOUND) 
 
-    tree1 = tree(stdscr, 1)
+    tree1 = tree(stdscr, 1) # create a tree instance
     tree1.media.play()
     
     try:
