@@ -10,12 +10,14 @@ import random
 import pickle
 from pathlib import Path
 import re
+YOUTUBE_REGEX = re.compile(r'^(https?\:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$')
 import urllib.request
 import threading
 import vlc
 import requests
 from pytubefix import YouTube, Playlist
 import logging
+from typing import Any
 
 os.environ['VLC_VERBOSE'] = '-1'
 
@@ -122,18 +124,20 @@ def addtext(
             curses.color_pair(color_pair),
         )  # displays the list in 2 lines
 
+# Cache quotes in memory
+try:
+    with open(QUOTE_FILE, encoding="utf8") as f:
+        QUOTES_CACHE = f.read().splitlines()
+except Exception:
+    QUOTES_CACHE = []
 
-def getrandomline(file):  # returns random quote
-    '''reads quote file and returns a quote at random'''
-    lines = open(file, encoding="utf8").read().splitlines()
-    myline = random.choice(lines)
-    return myline
+def getrandomline(file: Path) -> str:
+    with open(file, "r", encoding="utf8") as f:
+        lines = f.read().splitlines()
+    return random.choice(lines)
 
-
-def getqt():  
-    '''returns random quote from quote file'''
-    return getrandomline(QUOTE_FILE)
-
+def getqt() -> str:
+    return random.choice(QUOTES_CACHE) if QUOTES_CACHE else ""
 
 def printart(
     stdscr, file, x, y, color_pair
@@ -151,7 +155,15 @@ def printart(
             )
 
 
-def key_events(stdscr, tree1, maxx):
+def adjust_media_volume(tree1: Any, new_volume: int, maxx: int) -> None:
+    tree1.media.audio_set_volume(max(0, min(100, new_volume)))
+    tree1.notifyendtime = int(time.time()) + 2
+    volume_str = f"{round(new_volume)}%"
+    tree1.notifystring = " " * round(maxx * (new_volume / 100) - len(volume_str) - 2) + volume_str
+    tree1.invert = True
+    tree1.isnotify = True
+
+def key_events(stdscr: Any, tree1: Any, maxx: int) -> None:
 
     global effect_volume # Used for setting the sound effect volume with '{' and '}'
 
@@ -182,9 +194,8 @@ def key_events(stdscr, tree1, maxx):
             play_sound(TIMER_START_SOUND)
 
     if key == ord("q"):
-        treedata = open(RES_FOLDER / "treedata", "wb")
-        pickle.dump(tree1.age, treedata, protocol=None)
-        treedata.close()
+        with open(RES_FOLDER / "treedata", "wb") as treedata:
+            pickle.dump(tree1.age, treedata, protocol=None)
         exit()
 
     if key == ord("u"):
@@ -256,26 +267,12 @@ def key_events(stdscr, tree1, maxx):
         tree1.lofiradio()
 
     if key == ord("]"):
-        new_volume = tree1.media.audio_get_volume()+1
+        new_volume = tree1.media.audio_get_volume() + 1
+        adjust_media_volume(tree1, new_volume, maxx)
         
-        tree1.media.audio_set_volume(min(100, new_volume))
-        tree1.notifyendtime = int(time.time()) + 2
-        volumeStr = str(round(new_volume)) + "%"
-
-        tree1.notifystring = " "*round(maxx*(new_volume/100)-len(volumeStr)-2) + volumeStr
-        tree1.invert = True
-        tree1.isnotify = True
-
     if key == ord("["):
-        new_volume = tree1.media.audio_get_volume()-1
-        
-        tree1.media.audio_set_volume(min(100, new_volume))
-        tree1.notifyendtime = int(time.time()) + 2
-        volumeStr = str(round(new_volume)) + "%"
-
-        tree1.notifystring = " "*round(maxx*(new_volume/100)-len(volumeStr)-2) + volumeStr
-        tree1.invert = True
-        tree1.isnotify = True
+        new_volume = tree1.media.audio_get_volume() - 1
+        adjust_media_volume(tree1, new_volume, maxx)
 
         
     if key == ord("}"):
@@ -733,10 +730,10 @@ class tree:
 
 
 
-    def youtube(self, stdscr, maxx):
+    def youtube(self, stdscr: Any, maxx: int) -> None:
         if self.youtubedisplay:
-            curses.textpad.rectangle(stdscr, 0,0,2, maxx-1)
-            stdscr.addstr(1,1, "SEARCH or PASTE URL [type 'q' to exit]: ")
+            curses.textpad.rectangle(stdscr, 0, 0, 2, maxx - 1)
+            stdscr.addstr(1, 1, "SEARCH or PASTE URL [type 'q' to exit]: ")
             stdscr.refresh()
 
             if not "songinput" in locals():
@@ -759,7 +756,7 @@ class tree:
                 stdscr.addstr(1,1, "GETTING AUDIO")
 
                 #BUG: pattern matching doesnt work
-                is_url = True if re.match(r'^(?:http(s)?:\/\/)?(?:m\.youtube\.com\/(?:[0-9A-Z-]+\/)?watch\?v=|youtube\.com\/(?:[0-9A-Z-]+\/)?watch\?v=)([0-9A-Z]{11})$', songinput) else False
+                is_url = True if YOUTUBE_REGEX.match(songinput) else False
                 getsongthread = threading.Thread(target=self.playyoutube, args=(songinput,is_url))
                 getsongthread.daemon = True
                 getsongthread.start()
@@ -775,68 +772,55 @@ class tree:
             self.loading(stdscr, maxx)
 
 
-    def playyoutube(self, songinput, is_url:bool):
-        
+    def playyoutube(self, songinput, is_url: bool):
+        # Check for internet connectivity first
+        if not isinternet():
+            self.notifyendtime = int(time.time()) + 5
+            self.notifystring = "NO INTERNET CONNECTION"
+            self.isnotify = True
+            return
+
         try:
             yt_url = songinput if is_url else GetLinks(songinput)
             yt = YouTube(yt_url)
             song = yt.streams.get_by_itag(251).url
-
             self.media = vlc.MediaPlayer(song)
-
             self.media.play()
-
-        except:
+        except Exception:
             self.notifyendtime = int(time.time()) + 5
             self.notifystring = "ERROR GETTING AUDIO, PLEASE TRY AGAIN"
             self.isnotify = True
-            exit()
+            return
 
         self.downloaddisplay = False
-
         self.yt_title = yt.title
-
-
         self.notifyendtime = int(time.time()) + 10
         self.notifystring = "Playing: " + self.yt_title
         self.invert = False
         self.isnotify = True
 
     def getlofisong(self): 
-        # some links dont work, use recursion to find a link which works
-
+        # Check if internet connection is available
+        if not isinternet():
+            self.notifyendtime = int(time.time()) + 10
+            self.notifystring = "NO INTERNET CONNECTION"
+            self.invert = False
+            self.isnotify = True
+            self.radiomode = False
+            return "ERROR"
+        
         try:
-    
             self.lofilink = random.choice(self.playlist.video_urls)
             link = YouTube(self.lofilink).streams.get_by_itag(251).url
-
             return link
-
-        except:
-
+        except Exception:
             self.isloading = False
-
             self.notifyendtime = int(time.time()) + 10
             self.notifystring = "UNABLE TO CONNECT, PLEASE CHECK INTERNET CONNECTION"
             self.invert = False
             self.isnotify = True
             self.radiomode = False
-            exit()
-      
-
-    def lofiradio(self): #lofi playlist from youtube
-        if self.isloading:
-            return 
-        
-        self.media.stop()
-
-        self.isloading = True
-        self.radiomode = True
-
-        radiothread = threading.Thread(target=self.actuallofiradio)
-        radiothread.daemon = True
-        radiothread.start()
-
+            return "ERROR"
 
     def actuallofiradio(self):
         if not hasattr(self, "lofisong"):
@@ -857,18 +841,15 @@ class tree:
 
         self.isloading = False
 
-def main():
-    run = True
-    stdscr = curses.initscr() # initialize the curses object
-    stdscr.nodelay(True) # executes the program without waiting for user input
-    stdscr.keypad(True) # enables user input
-    curses.curs_set(0) # turns off cursor blinking
-    curses.start_color() # initializes colors
-    curses.noecho() # stops echoing user input
-    curses.cbreak() # user input is read character by character
-
-    curses.use_default_colors() 
-
+def main(stdscr: Any) -> None:
+    # Removed manual curses init; stdscr is provided by curses.wrapper.
+    stdscr.nodelay(True)
+    stdscr.keypad(True)
+    curses.curs_set(0)
+    curses.start_color()
+    curses.noecho()
+    curses.cbreak()
+    curses.use_default_colors()
     # setting color pairs
     try:
 
@@ -914,7 +895,7 @@ def main():
 
 
     try:
-        while run:
+        while True:
 
             start = time.time()
 
@@ -1049,4 +1030,4 @@ if __name__ == "__main__":
     config_file = Path(get_user_config_directory()) / "wisdom-tree" / QUOTE_FILE_NAME
     if config_file.exists():
         QUOTE_FILE = config_file
-    main()
+    curses.wrapper(main)
