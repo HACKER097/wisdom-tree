@@ -1,3 +1,20 @@
+#!/usr/bin/env python3
+"""
+Edit Quotes Script
+------------------
+
+This script reads an input file (qts.txt) containing quotes and writes an output file (edited_quotes.txt)
+with corrected punctuation spacing. The Scanner class processes each character in the file, applying specific
+rules for whitespace and punctuation to improve formatting.
+
+Usage:
+    python edit_quotes.py
+
+Notes:
+    - Ensure that 'edited_quotes.txt' is empty before running the script.
+    - The script is designed to fix common issues such as extra spacing or missing spaces after punctuation.
+"""
+
 class Scanner:
     def __init__(self, original_text_path, new_text_path):
         self.original_text_path = original_text_path

@@ -1,3 +1,55 @@
+"""
+Module: wisdom_tree
+This module implements a terminal-based application that combines a visual display of a growing bonsai tree
+with Pomodoro-style timer functionalities, motivational quotes, and audio playback. The application uses the
+curses library for its text-based user interface and integrates multimedia functionalities (via VLC) for sound 
+effects and ambient audio, including streaming audio from YouTube.
+Key Features:
+- Bonsai Tree Visualization: Renders different stages of a bonsai tree based on its "age," using ASCII art.
+- Pomodoro Timer: Allows setting up work/break intervals with predefined durations and a customizable timer.
+- Audio Playback: Plays sound effects (e.g., timer start, alarm, growth) and background audio. It supports local 
+    audio resources as well as YouTube-based streaming and lo-fi radio playlists.
+- Internet Integration: Checks for connectivity and fetches online content, including quotes and YouTube video/audio.
+- User Interaction: Handles a variety of key events (arrow keys, space, etc.) for navigation, timer control, 
+    volume adjustment, and toggling features.
+- Visual Effects: Adds rain and seasonal effects to the terminal display, enhancing the aesthetic of the application.
+Core Components:
+- get_user_config_directory(): Determines a platform-specific configuration directory for the user.
+- play_sound() and toggle_sounds(): Manage the playing of sound effects, respecting a mute flag.
+- isinternet(): Checks if an internet connection is available.
+- replaceNth(): Utility function that replaces the nth occurrence of a substring within a string.
+- addtext() and printart(): Functions for rendering and animating text and ASCII art in the middle of the screen.
+- getrandomline() and getqt(): Fetch and return a random motivational quote from a designated quotes file.
+- key_events(): Processes user key presses to navigate menus, control timers, adjust volumes, and manage audio playback.
+- GetSong() and GetLinks(): Facilitate downloading or streaming audio from YouTube based on a given link or search query.
+- Class tree: Central class encapsulating the state and functionality of the bonsai, including:
+        • Timer setup and execution (with work and break periods).
+        • Display and animation of the bonsai tree and seasonal effects.
+        • Menu handling for timer and feature selection.
+        • Integration of YouTube-based audio streaming and lo-fi radio mode.
+        • Notifications and loading indicators for user feedback.
+Usage:
+        The application is typically launched via the run_app() function (exported via __all__), which sets
+        up the curses interface, loads necessary resources from the 'res' directory, initializes the tree state,
+        and enters the main event loop to respond to user interactions.
+Dependencies:
+        - curses: Used for terminal UI rendering and control.
+        - vlc: Handles multimedia playback of audio files and streams.
+        - threading: Supports asynchronous tasks like downloading audio from YouTube.
+        - requests, urllib.request: Facilitate HTTP requests and connectivity checks.
+        - pickle and pathlib: Manage configuration and resource file operations.
+        - pytubefix: Processes YouTube videos to extract streaming URLs.
+This module is designed to be extended and customized. Change timer lengths, update sound resources,
+or modify the ASCII art files as necessary to fit the desired aesthetics and functionality.
+For developers:
+        Inline docstrings and comments are provided to explain the purpose and expected behavior of functions and classes.
+        Ensure that any modifications maintain compatibility with the terminal-based user interface and audio integration.
+"""
+
+# todo: add day/year progress bar
+# todo: add todo list
+# todo: add key listner event for changing the quote
+
 import os
 import curses
 from curses import textpad
@@ -11,6 +63,7 @@ import threading
 import vlc
 import requests
 from pytubefix import YouTube, Playlist
+import logging
 
 os.environ['VLC_VERBOSE'] = '-1'
 
@@ -43,6 +96,8 @@ effect_volume = 100 # How loud sound effects are, not including ambience and mus
 
 __all__ = ["run_app"]
 
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
 def get_user_config_directory():
     """Returns a platform-specific root directory for user config settings."""
     # On Windows, prefer %LOCALAPPDATA%, then %APPDATA%, since we can expect the
@@ -63,20 +118,21 @@ def get_user_config_directory():
         return xdg_config_home
     return os.path.join(os.path.expanduser("~"), ".config")
 
-def play_sound(sound):
-    
+def play_sound(sound: str) -> None:
     '''plays the sound if not muted'''
-
     if SOUNDS_MUTED and sound != ALARM_SOUND:
         return
+    try:
+        media = vlc.MediaPlayer(sound)
+        media.audio_set_volume(effect_volume)
+        media.play()
+    except Exception as e:
+        logging.error("Error playing sound: %s", e)
 
-    media = vlc.MediaPlayer(sound)
-    media.audio_set_volume(effect_volume)
-    media.play()
-
-def toggle_sounds():
+def toggle_sounds() -> None:
     global SOUNDS_MUTED
     SOUNDS_MUTED = not SOUNDS_MUTED
+    logging.info("Sound toggled, muted: %s", SOUNDS_MUTED)
 
 def isinternet():
     try:
@@ -105,7 +161,7 @@ def addtext(
 ):  # adds and animates text in the center
 
     text = replaceNth(
-        text[: int(anilen)], " ", "#", 8
+        text[: int(anilen)], " ", "#", 10
     )  # aads "#" after the 7th word to split line
     text = text.split("#")  # splits text into 2 list
     for i in range(len(text)):
@@ -333,6 +389,11 @@ def key_events(stdscr, tree1, maxx):
         tree1.notifystring = "REPEAT: " + str(tree1.isloop)
         tree1.invert = False
         tree1.isnotify = True
+        
+    # if key == ord("/"):
+    #     # change the quote
+    #     quote = getqt()
+    #     addtext(int(maxx / 2), int(maxy * 5 / 6), quote, anilen, stdscr, 2)
 
     for i in range(10):
         if key == ord(str(i)):
@@ -664,7 +725,7 @@ class tree:
                 self.media.stop()
             self.youtubedisplay = True
         if inputfeature == 1:
-            self.playlist = Playlist("https://www.youtube.com/playlist?list=PLOzDu-MXXLliO9fBNZOQTBDddoA3FzZUo")
+            self.playlist = YouTube("https://www.youtube.com/watch?v=oPVte6aMprI")
             self.lofiradio()
 
         if inputfeature == 2:
@@ -725,7 +786,7 @@ class tree:
     def youtube(self, stdscr, maxx):
         if self.youtubedisplay:
             curses.textpad.rectangle(stdscr, 0,0,2, maxx-1)
-            stdscr.addstr(1,1, "SEARCH [type 'q' to exit]: ")
+            stdscr.addstr(1,1, "SEARCH or PASTE URL [type 'q' to exit]: ")
             stdscr.refresh()
 
             if not "songinput" in locals():
@@ -747,7 +808,9 @@ class tree:
             if not songinput == "q":
                 stdscr.addstr(1,1, "GETTING AUDIO")
 
-                getsongthread = threading.Thread(target=self.playyoutube, args=(songinput,))
+                #BUG: pattern matching doesnt work
+                is_url = True if re.match(r'^(?:http(s)?:\/\/)?(?:m\.youtube\.com\/(?:[0-9A-Z-]+\/)?watch\?v=|youtube\.com\/(?:[0-9A-Z-]+\/)?watch\?v=)([0-9A-Z]{11})$', songinput) else False
+                getsongthread = threading.Thread(target=self.playyoutube, args=(songinput,is_url))
                 getsongthread.daemon = True
                 getsongthread.start()
 
@@ -762,10 +825,11 @@ class tree:
             self.loading(stdscr, maxx)
 
 
-    def playyoutube(self, songinput):
-
+    def playyoutube(self, songinput, is_url:bool):
+        
         try:
-            yt = YouTube(GetLinks(songinput))
+            yt_url = songinput if is_url else GetLinks(songinput)
+            yt = YouTube(yt_url)
             song = yt.streams.get_by_itag(251).url
 
             self.media = vlc.MediaPlayer(song)
@@ -1030,7 +1094,7 @@ def main():
         curses.endwin()
 
 
-def run_app():
+def run_app() -> None:
     """A method to run the app"""
     global QUOTE_FILE
     config_file = Path(get_user_config_directory()) / "wisdom-tree" / QUOTE_FILE_NAME
