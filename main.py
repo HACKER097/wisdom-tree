@@ -19,34 +19,10 @@ from pytubefix import YouTube, Playlist
 import logging
 from typing import Any
 
+# Import config values from config.py
+from config import RES_FOLDER, QUOTE_FOLDER, QUOTE_FILE_NAME, QUOTE_FILE, TIMER_WORK_MINS, TIMER_BREAK_MINS, TIMER_WORK, TIMER_BREAK, SOUNDS_MUTED, TIMER_START_SOUND, ALARM_SOUND, GROWTH_SOUND, EFFECT_VOLUME
+
 os.environ['VLC_VERBOSE'] = '-1'
-
-RES_FOLDER = Path(__file__).parent / "res"
-QUOTE_FOLDER = Path(__file__).parent
-QUOTE_FILE_NAME = "qts.txt"
-QUOTE_FILE = QUOTE_FOLDER / QUOTE_FILE_NAME
-
-TIMER_WORK_MINS =  (20 , 20 , 40 , 50)
-TIMER_BREAK_MINS = (20 , 10 , 20 , 10)
-
-TIMER_WORK = (
-	TIMER_WORK_MINS[0] * 60, 
-	TIMER_WORK_MINS[1] * 60, 
-	TIMER_WORK_MINS[2] * 60, 
-	TIMER_WORK_MINS[3] * 60)
-
-TIMER_BREAK = (
-	TIMER_BREAK_MINS[0] * 60, 
-	TIMER_BREAK_MINS[1] * 60, 
-	TIMER_BREAK_MINS[2] * 60, 
-	TIMER_BREAK_MINS[3] * 60)
-
-SOUNDS_MUTED = False # This is for only growth and start_timer, alarm stays
-TIMER_START_SOUND = str(RES_FOLDER / "timerstart.wav")
-ALARM_SOUND = str(RES_FOLDER / "alarm.wav")
-GROWTH_SOUND = str(RES_FOLDER/ "growth.waw")
-
-effect_volume = 100 # How loud sound effects are, not including ambience and music.
 
 #logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -76,7 +52,7 @@ def play_sound(sound: str) -> None:
         return
     try:
         media = vlc.MediaPlayer(sound)
-        media.audio_set_volume(effect_volume)
+        media.audio_set_volume(EFFECT_VOLUME)
         media.play()
     except Exception as e:
         logging.error("Error playing sound: %s", e)
@@ -165,7 +141,7 @@ def adjust_media_volume(tree1: Any, new_volume: int, maxx: int) -> None:
 
 def key_events(stdscr: Any, tree1: Any, maxx: int) -> None:
 
-    global effect_volume # Used for setting the sound effect volume with '{' and '}'
+    global EFFECT_VOLUME  # now imported from config.py
 
     key = stdscr.getch()
 
@@ -263,9 +239,6 @@ def key_events(stdscr: Any, tree1: Any, maxx: int) -> None:
     if key == ord("m"):
         tree1.media.pause()
 
-    if not tree1.isloading and key == ord("n"):
-        tree1.lofiradio()
-
     if key == ord("]"):
         new_volume = tree1.media.audio_get_volume() + 1
         adjust_media_volume(tree1, new_volume, maxx)
@@ -276,22 +249,22 @@ def key_events(stdscr: Any, tree1: Any, maxx: int) -> None:
 
         
     if key == ord("}"):
-        effect_volume = min(100, effect_volume+1)
+        EFFECT_VOLUME = min(100, EFFECT_VOLUME+1)
 
         tree1.notifyendtime = int(time.time()) + 2
 
-        volume = str(effect_volume) + "%"
-        tree1.notifystring = " "*round(maxx*(effect_volume/100)-len(volume)-2) + volume
+        volume = str(EFFECT_VOLUME) + "%"
+        tree1.notifystring = " "*round(maxx*(EFFECT_VOLUME/100)-len(volume)-2) + volume
         tree1.invert = True
         tree1.isnotify = True
 
     if key == ord("{"):
-        effect_volume = max(0, effect_volume-1)
+        EFFECT_VOLUME = max(0, EFFECT_VOLUME-1)
 
         tree1.notifyendtime = int(time.time()) + 2
 
-        volume = str(effect_volume) + "%"
-        tree1.notifystring = " "*round(maxx*(effect_volume/100)-len(volume)-2) + volume
+        volume = str(EFFECT_VOLUME) + "%"
+        tree1.notifystring = " "*round(maxx*(EFFECT_VOLUME/100)-len(volume)-2) + volume
         tree1.invert = True
         tree1.isnotify = True
 
@@ -399,12 +372,10 @@ class tree:
             " CUSTOM TIMER ",
             " END TIMER NOW ",
         ]
+        
         self.featurelist = [
             " PLAY MUSIC FROM YOUTUBE ",
-            " LOFI RADIO 1 ",
-            " LOFI RADIO 2 ",
-            " LOFI RADIO 3 ",
-            " CUSTOM PLAYLIST "
+            " ~CONCENTRATION MUSIC "
         ]
         self.currentmenu = "timer"
         self.selectedtimer = 0
@@ -423,14 +394,12 @@ class tree:
         self.notifyendtime = 0
         self.isnotify = False
         self.notifystring = " "
-        self.playlist = Playlist("https://www.youtube.com/playlist?list=PL6fhs6TSspZvN45CPJApnMYVsWhkt55h7")
-        self.radiomode = False
+        self.playlist = None  # Removed lofi radio playlist
+        self.radiomode = False  # Not used anymore.
         self.isloading = False
         self.invert = False
         self.breakendtext = "BREAK IS OVER, PRESS ENTER TO START NEW TIMER"
         self.isloop = False
-
-
 
     def display(self, maxx, maxy, seconds):
         '''draw the bonsai tree on stdscr'''
@@ -666,43 +635,16 @@ class tree:
         self.workendtime = int(time.time()) + self.worktime
 
     def featureselect(self, inputfeature, maxx, stdscr):
-        self.radiomode = False
+        # Only option available originally: PLAY MUSIC FROM YOUTUBE
         if inputfeature == 0:
             if hasattr(self, "media"):
                 self.media.stop()
             self.youtubedisplay = True
-        if inputfeature == 1:
-            self.playlist = YouTube("https://www.youtube.com/watch?v=oPVte6aMprI")
-            self.lofiradio()
-
-        if inputfeature == 2:
-            self.playlist = Playlist("https://www.youtube.com/playlist?list=PL0ONFXpPDe_mtm3ciwL-v7EE-7yLHDlP8")
-            self.lofiradio()
-
-        if inputfeature == 3:
-            self.playlist = Playlist("https://www.youtube.com/playlist?list=PLKYTmz7SemaqVDF6XJ15bv_8-j7ckkNgb")
-            self.lofiradio()
-
-        if inputfeature == 4:
-            curses.textpad.rectangle(stdscr, 0,0,2, maxx-1)
-            stdscr.addstr(1,1, "ENTER PLAyLIST LINK : ")
-            stdscr.refresh()
-
-            curses.echo()
-            curses.nocbreak()
-            stdscr.nodelay(False)
-            stdscr.keypad(False)
-            curses.curs_set(1)
-
-            self.playlist = Playlist(stdscr.getstr().decode("utf-8"))
-
-            curses.noecho()
-            curses.cbreak()
-            stdscr.nodelay(True)
-            stdscr.keypad(True)
-            curses.curs_set(0)
-
-            self.lofiradio()
+        elif inputfeature == 1:
+            # New preset for concentration music
+            if hasattr(self, "media"):
+                self.media.stop()
+            self.playyoutube("https://www.youtube.com/watch?v=oPVte6aMprI", True)
 
     def loading(self, stdscr, maxx):
             spinner = [
@@ -799,48 +741,6 @@ class tree:
         self.invert = False
         self.isnotify = True
 
-    def getlofisong(self): 
-        # Check if internet connection is available
-        if not isinternet():
-            self.notifyendtime = int(time.time()) + 10
-            self.notifystring = "NO INTERNET CONNECTION"
-            self.invert = False
-            self.isnotify = True
-            self.radiomode = False
-            return "ERROR"
-        
-        try:
-            self.lofilink = random.choice(self.playlist.video_urls)
-            link = YouTube(self.lofilink).streams.get_by_itag(251).url
-            return link
-        except Exception:
-            self.isloading = False
-            self.notifyendtime = int(time.time()) + 10
-            self.notifystring = "UNABLE TO CONNECT, PLEASE CHECK INTERNET CONNECTION"
-            self.invert = False
-            self.isnotify = True
-            self.radiomode = False
-            return "ERROR"
-
-    def actuallofiradio(self):
-        if not hasattr(self, "lofisong"):
-            self.lofisong = self.getlofisong()
-
-        if self.lofisong == "ERROR":
-            exit()
-
-        self.media = vlc.MediaPlayer(self.lofisong)
-        self.media.play()
-        
-        self.notifyendtime = int(time.time()) + 10
-        self.notifystring = "Playing: " + YouTube(self.lofilink).title
-        self.invert = False
-        self.isnotify = True
-
-        self.lofisong = self.getlofisong()
-
-        self.isloading = False
-
 def main(stdscr: Any) -> None:
     # Removed manual curses init; stdscr is provided by curses.wrapper.
     stdscr.nodelay(True)
@@ -926,9 +826,6 @@ def main(stdscr: Any) -> None:
                 tree1.timer()
 
                 if tree1.media.is_playing() and tree1.media.get_length() - tree1.media.get_time() < 1000  :
-
-                    if tree1.radiomode:
-                        tree1.lofiradio()
 
                     if tree1.isloop:
                         tree1.media.set_position(0)
