@@ -94,9 +94,7 @@ GROWTH_SOUND = str(RES_FOLDER/ "growth.waw")
 
 effect_volume = 100 # How loud sound effects are, not including ambience and music.
 
-__all__ = ["run_app"]
-
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+#logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def get_user_config_directory():
     """Returns a platform-specific root directory for user config settings."""
@@ -1094,15 +1092,9 @@ def main():
         curses.endwin()
 
 
-def run_app() -> None:
-    """A method to run the app"""
-    global QUOTE_FILE
+if __name__ == "__main__":
+    # avoid running the app if the module is imported
     config_file = Path(get_user_config_directory()) / "wisdom-tree" / QUOTE_FILE_NAME
     if config_file.exists():
         QUOTE_FILE = config_file
     main()
-
-
-if __name__ == "__main__":
-    # avoid running the app if the module is imported
-    run_app()
