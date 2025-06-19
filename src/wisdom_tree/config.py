@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 
 # Base directories
@@ -11,8 +10,8 @@ QUOTE_FILE_NAME = "qts.txt"
 QUOTE_FILE = QUOTE_FOLDER / QUOTE_FILE_NAME
 
 # Timer settings
-TIMER_WORK_MINS = (20, 20, 40, 50)
-TIMER_BREAK_MINS = (20, 10, 20, 10)
+TIMER_WORK_MINS = (25, 45, 50, 90)
+TIMER_BREAK_MINS = (5, 15, 10, 20)
 TIMER_WORK = tuple(t * 60 for t in TIMER_WORK_MINS)
 TIMER_BREAK = tuple(t * 60 for t in TIMER_BREAK_MINS)
 
