@@ -1,0 +1,17 @@
+[project]
+name = "wisdom-tree"
+version = "0.1.0"
+description = "A terminal productivity application which lets you set pomodoro timers, show random quotes, and play music while a tree grows."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "python-vlc>=3.0.21203",
+    "pytubefix>=9.2.0",
+    "requests>=2.32.4",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.12.0",
+    "ty>=0.0.1a11",
+]
