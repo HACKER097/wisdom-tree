@@ -15,12 +15,12 @@ import urllib.request
 import threading
 import vlc
 import requests
-from pytubefix import YouTube, Playlist
+from pytubefix import YouTube
 import logging
 from typing import Any
 
 # Import config values from config.py
-from config import RES_FOLDER, QUOTE_FOLDER, QUOTE_FILE_NAME, QUOTE_FILE, TIMER_WORK_MINS, TIMER_BREAK_MINS, TIMER_WORK, TIMER_BREAK, SOUNDS_MUTED, TIMER_START_SOUND, ALARM_SOUND, GROWTH_SOUND, EFFECT_VOLUME
+from src.wisdom_tree.config import RES_FOLDER, QUOTE_FOLDER, QUOTE_FILE_NAME, QUOTE_FILE, TIMER_WORK_MINS, TIMER_BREAK_MINS, TIMER_WORK, TIMER_BREAK, SOUNDS_MUTED, TIMER_START_SOUND, ALARM_SOUND, GROWTH_SOUND, EFFECT_VOLUME
 
 os.environ['VLC_VERBOSE'] = '-1'
 
