@@ -20,7 +20,7 @@ import logging
 from typing import Any
 
 # Import config values from config.py
-from src.wisdom_tree.config import RES_FOLDER, QUOTE_FOLDER, QUOTE_FILE_NAME, QUOTE_FILE, TIMER_WORK_MINS, TIMER_BREAK_MINS, TIMER_WORK, TIMER_BREAK, SOUNDS_MUTED, TIMER_START_SOUND, ALARM_SOUND, GROWTH_SOUND, EFFECT_VOLUME
+from wisdom_tree.config import RES_FOLDER, QUOTE_FOLDER, QUOTE_FILE_NAME, QUOTE_FILE, TIMER_WORK_MINS, TIMER_BREAK_MINS, TIMER_WORK, TIMER_BREAK, SOUNDS_MUTED, TIMER_START_SOUND, ALARM_SOUND, GROWTH_SOUND, EFFECT_VOLUME
 
 os.environ['VLC_VERBOSE'] = '-1'
 
@@ -797,9 +797,14 @@ def main(stdscr: Any) -> None:
         curses.endwin()
 
 
-if __name__ == "__main__":
+def run():
+    """Entry point for the CLI command."""
     # avoid running the app if the module is imported
     config_file = Path(get_user_config_directory()) / "wisdom-tree" / QUOTE_FILE_NAME
     if config_file.exists():
+        global QUOTE_FILE
         QUOTE_FILE = config_file
     curses.wrapper(main)
+
+if __name__ == "__main__":
+    run()

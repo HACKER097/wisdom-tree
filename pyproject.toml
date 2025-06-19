@@ -23,7 +23,7 @@ dev = [
 ]
 
 [project.scripts]
-wisdom-tree = "src.wisdom_tree.main:main"
+wisdom-tree = "wisdom_tree.main:run"
 
 [tool.hatch.build]
 include = [
