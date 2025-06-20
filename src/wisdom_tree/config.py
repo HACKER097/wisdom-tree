@@ -6,7 +6,7 @@ RES_FOLDER = BASE_DIR / "res"
 QUOTE_FOLDER = BASE_DIR
 
 # Quote file settings
-QUOTE_FILE_NAME = "qts.txt"
+QUOTE_FILE_NAME = "qts_old.txt"
 QUOTE_FILE = QUOTE_FOLDER / QUOTE_FILE_NAME
 
 # Timer settings
