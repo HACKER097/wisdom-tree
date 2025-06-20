@@ -88,10 +88,10 @@ class PomodoroTimer:
             remaining = max(0, int(self.workendtime - time.time()))
             timer_text = "WORK: {:02d}:{:02d}".format(remaining // 60, remaining % 60)
             stdscr.addstr(
-                int(maxy * 3 / 4) + 2,
+                int(maxy * 10 / 11),
                 int(maxx / 2 - len(timer_text) // 2),
                 timer_text,
-                curses.color_pair(2),
+                curses.color_pair(1),
             )
 
     def display_break_timer(self, stdscr: Any, maxy: int, maxx: int) -> bool:
