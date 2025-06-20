@@ -1,4 +1,5 @@
 import curses
+import curses.textpad
 import re
 import time
 from typing import Any
