@@ -76,6 +76,7 @@ class MediaPlayer:
         self.isloading = False
 
     def play_youtube(self, song_input: str, is_url: bool, tree_instance: Any) -> None:
+        self.downloaddisplay = True
         if not is_internet_available():
             tree_instance.notifyendtime = int(time.time()) + 5
             tree_instance.notifystring = "NO INTERNET CONNECTION"
@@ -87,6 +88,7 @@ class MediaPlayer:
             yt = YouTube(yt_url)
             song = yt.streams.get_by_itag(251).url
             self.media = vlc.MediaPlayer(song)
+            self.downloaddisplay = False
             self.media.play()
             self.yt_title = yt.title
             tree_instance.notifyendtime = int(time.time()) + 10
@@ -98,8 +100,6 @@ class MediaPlayer:
             tree_instance.notifystring = "ERROR GETTING AUDIO, PLEASE TRY AGAIN"
             tree_instance.isnotify = True
             return
-
-        self.downloaddisplay = False
 
     def handle_media_end(self):
         if (

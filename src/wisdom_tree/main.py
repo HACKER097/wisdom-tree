@@ -160,7 +160,7 @@ class WisdomTreeApp:
                         thread.daemon = True
                         thread.start()
 
-                    if self.youtube_interface.downloaddisplay:
+                    if self.media_player.downloaddisplay:
                         self.media_player.show_loading_spinner(self.stdscr, maxx)
 
                     # Update timer
