@@ -1,0 +1,44 @@
+[project]
+name = "wisdom-tree"
+dynamic = ["version"]
+authors = [{name = "HACKER097"}]
+description = "A terminal productivity application which lets you set pomodoro timers, show random quotes, and play music while a tree grows."
+keywords = ["productivity", "pomodoro", "terminal", "focus"]
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "python-vlc>=3.0.21203",
+    "pytubefix>=9.2.0",
+    "requests>=2.32.4",
+]
+
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "ruff>=0.12.0",
+    "ty>=0.0.1a11",
+]
+
+[project.scripts]
+wisdom-tree = "wisdom_tree.main:run"
+
+[tool.hatch.build]
+include = [
+    "src/wisdom_tree/**/*.py",
+    "src/wisdom_tree/res/*",
+    "src/wisdom_tree/qts.txt"
+]
+exclude = [
+    "*.pyc",
+    "__pycache__/",
+]
+artifacts = ["src/wisdom_tree/res/"]
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/wisdom_tree"]
