@@ -1,7 +1,7 @@
 [project]
 name = "wisdom-tree"
 dynamic = ["version"]
-authors = [{name = "Shubham Soni", email = "shubxam@gmail.com"}]
+authors = [{name = "HACKER097"}]
 description = "A terminal productivity application which lets you set pomodoro timers, show random quotes, and play music while a tree grows."
 keywords = ["productivity", "pomodoro", "terminal", "focus"]
 readme = "README.md"
