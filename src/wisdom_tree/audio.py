@@ -91,14 +91,9 @@ class MediaPlayer:
             self.downloaddisplay = False
             self.media.play()
             self.yt_title = yt.title
-            tree_instance.notifyendtime = int(time.time()) + 10
-            tree_instance.notifystring = "Playing: " + self.yt_title
-            tree_instance.invert = False
-            tree_instance.isnotify = True
+            tree_instance.notifications.notify("Playing: " + self.yt_title, 10)
         except Exception:
-            tree_instance.notifyendtime = int(time.time()) + 5
-            tree_instance.notifystring = "ERROR GETTING AUDIO, PLEASE TRY AGAIN"
-            tree_instance.isnotify = True
+            tree_instance.notifications.notify("ERROR GETTING AUDIO, PLEASE TRY AGAIN", 5)
             return
 
     def handle_media_end(self):
