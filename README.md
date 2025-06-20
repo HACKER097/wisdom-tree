@@ -1,4 +1,4 @@
-<h3 align="center"><img src="wisdom_tree/res/logo_512x512.png" alt="wisdom-tree"><br>Wisdom Tree</h3>
+<h3 align="center"><img src="logo.png" alt="wisdom-tree"><br>Wisdom Tree</h3>
 
 <p align="center">
 
